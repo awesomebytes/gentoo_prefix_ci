@@ -6,18 +6,16 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
-# variables:
-#   imageName: 'gentoo-prefix-docker-image-test-ci:$(build.buildId)'
-#   - group: 'DockerHub login variable group'
-
 steps:
 - script: docker build -f Dockerfile -t $(imageName) .
   displayName: 'docker build'
-  timeoutInMinutes: 0
+    # This means up to 6h
+    timeoutInMinutes: 0
+    # Even if it fails I want to push the image to DockerHub for inspection
+    continueOnError: true
+# The variables are set on the Build options on the web interface
 - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
-# Try to tag the latest failed image we ran if it failed
+# Try to tag the latest failed image we ran
 - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:latest
-# Push it, if it failed
+# Push it
 - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
-# # Push the proper one otherwise
-# - script: docker push $(DockerHub_user)/$(imageName)
