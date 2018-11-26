@@ -11,7 +11,7 @@ RUN chown -R user /home/user/
 # Add the user to sudoers
 RUN chmod -R o-w /etc/sudoers.d/
 # Give the user a password
-RUN echo rosuser:rosuser | chpasswd
+RUN echo user:user | chpasswd
 
 # Instal basic stuff
 RUN apt-get install build-essential -y
