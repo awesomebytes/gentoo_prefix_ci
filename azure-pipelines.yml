@@ -8,12 +8,16 @@ pool:
 
 variables:
   imageName: 'gentoo-prefix-docker-image-test-ci:$(build.buildId)'
-  - group: DockerHub login variable group
+  - group: 'DockerHub login variable group'
 
 steps:
 - script: docker build -f Dockerfile -t $(imageName) .
   displayName: 'docker build'
-
-- script: |
-    docker login -u $(DockerHub_user) -p $(DockerHub_password)
-    docker push $(DockerHub_user)/$(imageName)
+  timeoutInMinutes: 0
+- script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
+# Try to tag the latest failed image we ran if it failed
+- script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_failed_image:latest
+# Push it, if it failed
+- script: docker push $(DockerHub_user)/gentoo_prefix_failed_image
+# Push the proper one otherwise
+- script: docker push $(DockerHub_user)/$(imageName)
