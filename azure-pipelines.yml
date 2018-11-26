@@ -10,7 +10,7 @@ steps:
 - script: docker build -f Dockerfile -t gentoo_prefix_latest_image .
   displayName: 'docker build'
   # This means up to 6h
-  timeoutInMinutes: 0
+  timeoutInMinutes: 359
   # Even if it fails I want to push the image to DockerHub for inspection
   continueOnError: true
 # The variables are set on the Build options on the web interface
