@@ -12,3 +12,7 @@ variables:
 steps:
 - script: docker build -f Dockerfile -t $(imageName) .
   displayName: 'docker build'
+
+- script: |
+    docker login -u $(DockerHub_user) -p $(DockerHub_password)
+    docker push $(DockerHub_user)/$(imageName)
