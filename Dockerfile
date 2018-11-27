@@ -27,12 +27,21 @@ USER user
 RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 
+# Patch bug #668940
+COPY circular_dependencies.patch circular_dependencies.patch
+RUN patch < circular_dependencies.patch
+
 # Bootstrap Gentoo Prefix
-RUN date > start_bootstrap_date.txt && \
-echo "Y\n\
+# This stops on emerge of gcc-8.2.0-r4, bug #672042
+RUN echo "Y\n\
 \n\
 /tmp/gentoo\n\
-luck\n" | ./bootstrap-prefix.sh && \
-date > end_bootstrap_date.txt
+luck\n" | ./bootstrap-prefix.sh || true
+# So we just do it again to get thru
+# hopefully avoiding the circular dependencies error too, thanks to the patch
+RUN echo "Y\n\
+\n\
+/tmp/gentoo\n\
+luck\n" | ./bootstrap-prefix.sh
 
 ENTRYPOINT ["/bin/bash"]
