@@ -10,6 +10,7 @@ RUN useradd --create-home --shell=/bin/bash user
 RUN chown -R user /home/user/
 # Add the user to sudoers
 RUN chmod -R o-w /etc/sudoers.d/
+RUN usermod -aG sudo user
 # Give the user a password
 RUN echo user:user | chpasswd
 
@@ -20,6 +21,10 @@ RUN apt-get install build-essential -y
 RUN apt-get install bash-completion nano net-tools less iputils-ping vim emacs -y
 RUN apt-get install python-pip python-dev  -y
 RUN apt-get install wget -y
+# To enable ssh
+RUN apt-get install openssh-server -y
+# To enable adding to the clipboard from the shell
+RUN apt-get install xclip -y
 
 WORKDIR /home/user
 USER user
