@@ -31,6 +31,7 @@ USER user
 
 RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
+ENV EPREFIX /tmp/gentoo
 
 # Patch bug #668940
 COPY circular_dependencies.patch circular_dependencies.patch
@@ -40,13 +41,25 @@ RUN patch < circular_dependencies.patch
 # This stops on emerge of gcc-8.2.0-r4, bug #672042
 RUN echo "Y\n\
 \n\
-/tmp/gentoo\n\
+${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh || true
 # So we just do it again to get thru
 # hopefully avoiding the circular dependencies error too, thanks to the patch
 RUN echo "Y\n\
 \n\
-/tmp/gentoo\n\
+${EPREFIX}\n\
+luck\n" | ./bootstrap-prefix.sh || true
+# To workaround bug #670836
+# perl error about errno
+RUN cp ${EPREFIX}/usr/include/errno.h ${EPREFIX}/tmp/usr/include/errno.h
+# To workaround "no python-exec wrapped executable"
+# When trying to resume the bootstrap
+RUN mkdir ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && cd ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && ln -s ../../../bin/python2.7 python2 && ln -s python2 python
+
+# Let's go again
+RUN echo "Y\n\
+\n\
+${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh
 
 ENTRYPOINT ["/bin/bash"]
