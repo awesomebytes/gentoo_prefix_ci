@@ -3,22 +3,27 @@
 # Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-pool:
-  vmImage: 'Ubuntu 16.04'
+# Everything must be under a 'job' to be able to set the timeoutInMinutes
+jobs:
+  - job: run_test
+    timeoutInMinutes: 0
 
-steps:
-- script: docker build -f Dockerfile -t gentoo_prefix_latest_image .
-  displayName: 'docker build'
-  # This means up to 6h
-  timeoutInMinutes: 0
-  # Even if it fails I want to push the image to DockerHub for inspection
-  continueOnError: true
-# The variables are set on the Build options on the web interface
-- script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
-  displayName: 'docker login'
-# Try to tag the latest failed image we ran
-- script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:latest
-  displayName: 'create image to push to DockerHub'
-# Push it
-- script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
-  displayName: 'push image to DockerHub'
+    pool:
+      vmImage: 'Ubuntu 16.04'
+
+    steps:
+    - script: docker build -f Dockerfile -t gentoo_prefix_latest_image .
+      displayName: 'docker build'
+      # This means up to 6h
+      timeoutInMinutes: 0
+      # Even if it fails I want to push the image to DockerHub for inspection
+      continueOnError: true
+    # The variables are set on the Build options on the web interface
+    - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
+      displayName: 'docker login'
+    # Try to tag the latest failed image we ran
+    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:latest
+      displayName: 'create image to push to DockerHub'
+    # Push it
+    - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
+      displayName: 'push image to DockerHub'
