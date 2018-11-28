@@ -110,6 +110,16 @@ RUN ln -s ${EPREFIX}/tmp/usr/bin/automake-1.16 ${EPREFIX}/usr/bin/automake-1.16 
 RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
+luck\n" | ./bootstrap-prefix.sh || true
+
+# Workaround for
+#  * ERROR: app-admin/metalog-20181125::gentoo failed (configure phase):
+#  *   econf failed
+RUN mkdir -p ${EPREFIX}/etc/portage/profile && echo "app-admin/metalog-3-r2" >> ${EPREFIX}/etc/portage/profile/package.provided
+
+RUN echo "Y\n\
+\n\
+${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh
 
 ENTRYPOINT ["/bin/bash"]
