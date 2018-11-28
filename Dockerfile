@@ -29,6 +29,11 @@ RUN apt-get install xclip -y
 WORKDIR /home/user
 USER user
 
+# Let's get some specs of the machine that is running this job
+RUN cat /proc/cpuinfo
+RUN cat /proc/meminfo
+RUN df -h
+
 RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
