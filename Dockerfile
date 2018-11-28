@@ -59,6 +59,10 @@ luck\n" | ./bootstrap-prefix.sh || true
 # To workaround bug #670836
 # perl error about errno.h and error_t.h
 RUN cp ${EPREFIX}/usr/include/errno.h ${EPREFIX}/tmp/usr/include/errno.h && mkdir -p ${EPREFIX}/tmp/usr/include/bits/types && cp ${EPREFIX}/usr/include/bits/types/error_t.h ${EPREFIX}/tmp/usr/include/bits/types
+
+# Apply the patch i made and
+# /tmp/gentoo/tmp/usr/bin/ebuild perl-5.26.2.ebuild manifest
+
 # To workaround Can't figure out your cwd!
 RUN cp ${EPREFIX}/bin/pwd ${EPREFIX}/tmp/bin/pwd
 # # To workaround
@@ -71,6 +75,15 @@ RUN rm -f ${EPREFIX}/tmp/usr/bin/perl && ln -s /usr/bin/perl ${EPREFIX}/tmp/usr/
 RUN mkdir ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && cd ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && ln -s ../../../bin/python2.7 python2 && ln -s python2 python
 
 # Let's go again
+RUN echo "Y\n\
+\n\
+${EPREFIX}\n\
+luck\n" | ./bootstrap-prefix.sh
+
+# Here perl went thru, so we need to go back to use the system one to avoid
+# libperl.so.5.26: cannot open shared object file: No such file or directory
+RUN rm -f ${EPREFIX}/tmp/usr/bin/perl && ln -s /usr/bin/perl ${EPREFIX}/tmp/usr/bin/perl
+
 RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
