@@ -78,11 +78,34 @@ RUN mkdir ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && cd ${EPREFIX}/tmp/usr/
 RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
-luck\n" | ./bootstrap-prefix.sh
+luck\n" | ./bootstrap-prefix.sh || true
 
 # Here perl went thru, so we need to go back to use the system one to avoid
 # libperl.so.5.26: cannot open shared object file: No such file or directory
 RUN rm -f ${EPREFIX}/tmp/usr/bin/perl && ln -s /usr/bin/perl ${EPREFIX}/tmp/usr/bin/perl
+
+RUN echo "Y\n\
+\n\
+${EPREFIX}\n\
+luck\n" | ./bootstrap-prefix.sh || true
+
+# Workaround
+# * Running eautoreconf in '/tmp/gentoo/var/tmp/portage/dev-libs/libgcrypt-1.8.4/work/libgcrypt-1.8.4' ...
+# ERROR: This version of portageq only supports <eroot>s ending in '/tmp/gentoo'. The provided <eroot>, '/tmp/gentoo/tmp', doesn't.
+# portageq gets confused and refuses to let the user use the autotools installed in ${EPREFIX} fot stage3
+RUN sed -i 's/# END PREFIX LOCAL/# END PREFIX LOCAL\n        return 0/g' ${EPREFIX}/tmp/usr/lib/portage/bin/phase-helpers.sh
+
+# Then we will get
+# * Failed Running aclocal !
+# This is a very ugly workaround
+RUN ln -s ${EPREFIX}/tmp/usr/bin/automake-1.16 ${EPREFIX}/usr/bin/automake-1.16 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/aclocal-1.16 ${EPREFIX}/usr/bin/aclocal-1.16 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autoconf-2.69  ${EPREFIX}/usr/bin/autoconf-2.69 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autoheader-2.69 ${EPREFIX}/usr/bin/autoheader-2.69 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autom4te-2.69 ${EPREFIX}/usr/bin/autom4te-2.69 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autoreconf-2.69 ${EPREFIX}/usr/bin/autoreconf-2.69 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autoscan-2.69 ${EPREFIX}/usr/bin/autoscan-2.69 && \
+    ln -s ${EPREFIX}/tmp/usr/bin/autoupdate-2.69 ${EPREFIX}/usr/bin/autoupdate-2.69
 
 RUN echo "Y\n\
 \n\
