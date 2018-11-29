@@ -22,12 +22,12 @@ jobs:
     # The variables are set on the Build options on the web interface
     - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
       displayName: 'docker login'
-    # Try to tag the latest failed image we ran
-    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)-1
-      displayName: 'create image to push to DockerHub'
-    # Push it
-    - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
-      displayName: 'push image to DockerHub'
+    # # Try to tag the latest failed image we ran
+    # - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)-1
+    #   displayName: 'create image to push to DockerHub'
+    # # Push it
+    # - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
+    #   displayName: 'push image to DockerHub'
 
     - script: cd stage_3_1 && docker build -f Dockerfile -t gentoo_prefix_latest_image .
       displayName: 'docker build stage_3_1'
@@ -35,12 +35,12 @@ jobs:
       timeoutInMinutes: 0
       # Even if it fails I want to push the image to DockerHub for inspection
       continueOnError: true
-    # Try to tag the latest failed image we ran
-    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)-2
-      displayName: 'create image to push to DockerHub'
-    # Push it
-    - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
-      displayName: 'push image to DockerHub'
+    # # Try to tag the latest failed image we ran
+    # - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)-2
+    #   displayName: 'create image to push to DockerHub'
+    # # Push it
+    # - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
+    #   displayName: 'push image to DockerHub'
 
 
     - script: cd stage_3_2 && docker build -f Dockerfile -t gentoo_prefix_latest_image .
@@ -50,7 +50,7 @@ jobs:
       # Even if it fails I want to push the image to DockerHub for inspection
       continueOnError: true
     # Try to tag the latest failed image we ran
-    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)-3
+    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)
       displayName: 'create image to push to DockerHub'
     # Push it
     - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
