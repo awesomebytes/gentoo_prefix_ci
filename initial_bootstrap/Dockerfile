@@ -49,7 +49,7 @@ RUN echo "Y\n\
 ${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh || true
 # Was asked to do dmesg to check if its out of memory error
-RUN dmesg
+# RUN dmesg
 # So we just do it again to get thru
 # hopefully avoiding the circular dependencies error too, thanks to the patch
 RUN echo "Y\n\
