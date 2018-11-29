@@ -1,0 +1,12 @@
+--- bootstrap-prefix.sh	2018-11-27 22:31:03.000000000 +1100
++++ bootstrap-prefix_circular_dependencies_fixed.sh	2018-11-27 22:30:07.205855950 +1100
+@@ -1555,7 +1555,8 @@
+ 	
+ 	# cmake has some external dependencies which require autoconf, etc.
+ 	# unless we only build the buildtool, bug #603012
+-	echo "dev-util/cmake -server" >> "${ROOT}"/tmp/etc/portage/package.use
++	# the rest are to overcome some circular dependencies, bug #668940
++	echo -e "dev-util/cmake -server\nsys-devel/gettext -acl\ndev-lang/perl -gdbm -berkdb\nsys-apps/help2man -nls\ndev-util/pkgconfig internal-glib" >> "${ROOT}"/tmp/etc/portage/package.use
+ 
+ 	for pkg in ${compiler_stage1} ; do
+ 		# <glibc-2.5 does not understand .gnu.hash, use
