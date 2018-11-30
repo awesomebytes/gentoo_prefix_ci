@@ -59,7 +59,7 @@ jobs:
     # - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
     #   displayName: 'push image to DockerHub'   
 
-- job: bootstrap stage 3 part 1
+  - job: bootstrap stage 3 part 1
     timeoutInMinutes: 0
 
     pool:
@@ -87,7 +87,7 @@ jobs:
       displayName: 'push image to DockerHub'
 
 
-- job: bootstrap stage 3 part 2
+  - job: bootstrap stage 3 part 2
     timeoutInMinutes: 0
 
     pool:
