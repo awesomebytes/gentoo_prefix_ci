@@ -75,7 +75,7 @@ jobs:
       displayName: 'push image to DockerHub'
 
 
-  - job: bootstrap stage 3 part 2
+  - job: bootstrap_stage_3_part_2
     timeoutInMinutes: 0
     dependsOn: "bootstrap_stage_3_part_1"
 
