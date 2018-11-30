@@ -5,7 +5,7 @@
 
 # Everything must be under a 'job' to be able to set the timeoutInMinutes
 jobs:
-  - job: bootstrap stage 1 and 2
+  - job: "bootstrap_stage_1_and_2"
     timeoutInMinutes: 0
 
     pool:
@@ -44,23 +44,11 @@ jobs:
     # # Push it
     # - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
     #   displayName: 'push image to DockerHub'
+ 
 
-
-    # - script: cd stage_3_2 && docker build -f Dockerfile -t gentoo_prefix_latest_image .
-    #   displayName: 'docker build stage_3_2'
-    #   # This means up to 6h
-    #   timeoutInMinutes: 0
-    #   # Even if it fails I want to push the image to DockerHub for inspection
-    #   continueOnError: true
-    # # Try to tag the latest failed image we ran
-    # - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/gentoo_prefix_latest_image:$(Build.BuildId)
-    #   displayName: 'create image to push to DockerHub'
-    # # Push it
-    # - script: docker push $(DockerHub_user)/gentoo_prefix_latest_image
-    #   displayName: 'push image to DockerHub'   
-
-  - job: bootstrap stage 3 part 1
+  - job: "bootstrap_stage_3_part_1"
     timeoutInMinutes: 0
+    dependsOn: "bootstrap_stage_1_and_2"
 
     pool:
       vmImage: 'Ubuntu 16.04'
@@ -89,6 +77,7 @@ jobs:
 
   - job: bootstrap stage 3 part 2
     timeoutInMinutes: 0
+    dependsOn: "bootstrap_stage_3_part_1"
 
     pool:
       vmImage: 'Ubuntu 16.04'
