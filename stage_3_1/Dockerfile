@@ -58,7 +58,7 @@
 # ${EPREFIX}\n\
 # luck\n" | ./bootstrap-prefix.sh || true
 
-FROM gentoo_prefix_latest_image
+FROM awesomebytes/gentoo_prefix_latest_image_initial
 
 # To workaround bug #670836
 # perl error about errno.h and error_t.h
