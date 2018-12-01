@@ -16,7 +16,7 @@ jobs:
 
     steps:
     # We divide the boostrap in 3 parts to not go over the 6h limit as gcc takes ages
-    - script: cd initial_bootstrap && docker build -f Dockerfile -t $(docker_image_name) .
+    - script: cd initial_bootstrap && docker build -f Dockerfile -t $(DockerHub_user)/$(docker_image_name) .
       displayName: 'docker build'
       # This means up to 6h
       timeoutInMinutes: 0
@@ -61,7 +61,7 @@ jobs:
     - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
       displayName: 'docker login'
 
-    - script: cd stage_3_1 && docker build -f Dockerfile -t $(docker_image_name) .
+    - script: cd stage_3_1 && docker build -f Dockerfile -t $(DockerHub_user)/$(docker_image_name) .
       displayName: 'docker build stage_3_1'
       # This means up to 6h
       timeoutInMinutes: 0
@@ -90,7 +90,7 @@ jobs:
     - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
       displayName: 'docker login'
 
-    - script: cd stage_3_2 && docker build -f Dockerfile -t $(docker_image_name) .
+    - script: cd stage_3_2 && docker build -f Dockerfile -t $(DockerHub_user)/$(docker_image_name) .
       displayName: 'docker build stage_3_2'
       # This means up to 6h
       timeoutInMinutes: 0
