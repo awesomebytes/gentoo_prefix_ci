@@ -1,5 +1,6 @@
 # gentoo_prefix_ci_test
 [![Build Status](https://dev.azure.com/12719821/12719821/_apis/build/status/awesomebytes.gentoo_prefix_ci)](https://dev.azure.com/12719821/12719821/_build/latest?definitionId=2)
+
 A [Gentoo Prefix](https://wiki.gentoo.org/wiki/Project:Prefix) continuous integration repo.
 
 Bootstrapping Gentoo Prefix every night on `/tmp/gentoo` for amd64 over a Docker image of Ubuntu 16.04.
