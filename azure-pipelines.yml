@@ -136,11 +136,14 @@ jobs:
     - script: |
         id=$(docker create $(DockerHub_user)/$(docker_image_name))
         docker cp $id:/tmp/gentoo_on_tmp.tar.gz $HOME
+      displayName: 'Extract gentoo_on_tmp.tar.gz from Docker image'
     # Not really needed
     # - script: docker rm -v $id
     # Make a release
     - script: python -m pip install --upgrade pip setuptools wheel githubrelease
       displayName: 'Install tools'
+    - script: python -m pip install --user githubrelease
+      displayName: 'Install tools 2'
     - bash: |
         export DATE=$(date -I'minutes' | sed 's/+/plus/g'| sed 's/:/at/g')
         export RELEASE_TAG=${release/DATE}
