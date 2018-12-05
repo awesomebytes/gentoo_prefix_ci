@@ -140,7 +140,7 @@ jobs:
     # Not really needed
     # - script: docker rm -v $id
     # Make a release
-    - script: python -m pip install --upgrade pip setuptools wheel githubrelease
+    - script: python -m pip install --upgrade pip setuptools wheel
       displayName: 'Install tools'
     - script: python -m pip install --user githubrelease
       displayName: 'Install tools 2'
