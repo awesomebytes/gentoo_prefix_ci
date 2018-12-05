@@ -59,6 +59,3 @@ Gentoo Prefix is an awesome framework to deploy (almost) any software in any mac
 # Acknowledgements
 Thanks to the people in the #gentoo-prefix IRC channel, to the Gentoo-Alt mailing list, and in general to anyone that helped me while building all this.
 
-
-# TODO
-* Automate the release (with uploading of the Gentoo Prefix .tar.gz) on every succesful build.
