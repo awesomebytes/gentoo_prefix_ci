@@ -111,7 +111,7 @@ jobs:
 
   - job: package_stage
     timeoutInMinutes: 0
-    dependsOn: "bootstrap_stage_3_part_2"
+    # dependsOn: "bootstrap_stage_3_part_2"
 
     pool:
       vmImage: 'Ubuntu 16.04'
