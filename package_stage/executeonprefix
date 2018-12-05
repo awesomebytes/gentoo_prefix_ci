@@ -1,0 +1,66 @@
+#!/tmp/gentoo/bin/bash
+# Based on the original startprefix script from Fabian Groffen <grobian@gentoo.org>
+# Copyright 2006-2014 Gentoo Foundation; Distributed under the GPL v2
+# $Id: startprefix.in 61219 2012-09-04 19:05:55Z grobian $
+# But this script allows to execute a specific command under the
+# prefixed environment
+# Author: Sammy Pfeiffer <Sammy.Pfeiffer at student.uts.edu.au>
+
+# Check if the link exists in /tmp/gentoo
+# If it doesn't exist, create it
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+if [ ! -L /tmp/gentoo ]; then
+  echo "Softlink to this Gentoo Prefix in /tmp/gentoo does not exist, creating it..."
+  cd /tmp
+  ln -s $SCRIPTPATH gentoo
+else
+    # If it exists check it's pointing here
+    # If it's not pointing here, refuse to continue
+    if [ ! /tmp/gentoo -ef $SCRIPTPATH ]; then
+        echo "There is a softlink in /tmp/gentoo but it does not point here ($SCRIPTPATH), aborting."
+        echo "You may want to remove the link and try again."
+        echo "Check where the link is pointing executing:"
+        echo "ls -la /tmp/gentoo"
+        echo "If you consider it safe, you can remove the link executing:"
+        echo "unlink /tmp/gentoo"
+        echo "And you can execute this script again"
+        exit 1
+    fi
+fi
+
+
+# What is our prefix?
+EPREFIX="/tmp/gentoo"
+
+if [[ ${SHELL#${EPREFIX}} != ${SHELL} ]] ; then
+    echo "You appear to be in prefix already (SHELL=$SHELL)" > /dev/stderr
+    echo "You don't need to use this script." > /dev/stderr
+    exit -1
+fi
+
+# not all systems have the same location for shells, however what it
+# boils down to, is that we need to know what the shell is, and then we
+# can find it in the bin dir of our prefix
+SHELL=${SHELL##*/}
+# set the prefix shell in the environment
+export SHELL=${EPREFIX}/bin/${SHELL}
+# check if the shell exists
+if [[ ! -x $SHELL ]] ; then
+    echo "Failed to find the Prefix shell, this is probably" > /dev/stderr
+    echo "because you didn't emerge the shell ${SHELL##*/}" > /dev/stderr
+    exit -1
+fi
+
+# start the login shell, clean the entire environment but what's needed
+RETAIN="HOME=$HOME TERM=$TERM USER=$USER SHELL=$SHELL"
+# PROFILEREAD is necessary on SUSE not to wipe the env on shell start
+[[ -n ${PROFILEREAD} ]] && RETAIN+=" PROFILEREAD=$PROFILEREAD"
+# ssh-agent is handy to keep, of if set, inherit it
+[[ -n ${SSH_AUTH_SOCK} ]] && RETAIN+=" SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+# if we're on some X terminal, makes sense to inherit that too
+[[ -n ${DISPLAY} ]] && RETAIN+=" DISPLAY=$DISPLAY"
+
+# Pass the parameters to the prefixed shell
+echo "Executing on prefixed environment:"
+echo "$*"
+env -i $RETAIN $SHELL -lc "$*"

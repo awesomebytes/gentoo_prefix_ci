@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Trick to be able to use the same bootstrapped Gentoo Prefix
+# on any machine, without privileges, just by copying it
+# Author: Sammy Pfeiffer <Sammy.Pfeiffer at student.uts.edu.au>
+
+# Check if the link exists in /tmp/gentoo
+# If it doesn't exist, create it
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+if [ ! -L /tmp/gentoo ]; then
+  echo "Softlink to this Gentoo Prefix in /tmp/gentoo does not exist, creating it..."
+  cd /tmp
+  ln -s $SCRIPTPATH gentoo
+else
+    # If it exists check it's pointing here
+    # If it's not pointing here, refuse to continue
+    if [ ! /tmp/gentoo -ef $SCRIPTPATH ]; then
+        echo "There is a softlink in /tmp/gentoo but it does not point here ($SCRIPTPATH), aborting."
+        echo "You may want to remove the link and try again."
+        echo "Check where the link is pointing executing:"
+        echo "ls -la /tmp/gentoo"
+        echo "If you consider it safe, you can remove the link executing:"
+        echo "unlink /tmp/gentoo"
+        echo "And you can execute this script again"
+        exit 1
+    fi
+fi
+
+# Copy files that provide user identification
+# without this tools who depends on user ID display wrong info
+# which is not critical but undesired
+cp /etc/group /tmp/gentoo/etc/group || true
+cp /etc/passwd /tmp/gentoo/etc/passwd || true
+
+# Start Gentoo Prefix
+/tmp/gentoo/startprefix_original
