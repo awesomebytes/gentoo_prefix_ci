@@ -166,3 +166,4 @@ jobs:
         export PATH=$HOME/.local/bin:$PATH
         export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages:$PYTHONPATH
         githubrelease --github-token $(GitHub_Token) release $(Build.Repository.Name) create "${RELEASE_TAG}" --publish --name "${RELEASE_NAME}" --body "${BODY}" "${RELEASE_FILE_NAME}"
+      displayName: 'Create Release'
