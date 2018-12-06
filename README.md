@@ -12,16 +12,15 @@ Ready-to-use releases (with instructions): https://github.com/awesomebytes/gento
 # Try Gentoo Prefix
 Go to https://github.com/awesomebytes/gentoo_prefix_ci/releases and download the latest release (700MB~).
 
-Extract (2.2GB~) and softlink the Gentoo Prefix (you'll need to do it on every reboot as `/tmp` will get wiped):
+Extract (2.2GB~):
 ```bash
 cd ~
-tar xvf gentoo_on_tmp-amd64.tar.gz
-ln -s ~/gentoo /tmp/gentoo
+tar xvf gentoo_on_tmp*.tar.gz
 ```
 
 Run your **prefix** shell by doing:
 ```bash
-./tmp/gentoo/startprefix
+./gentoo/startprefix
 ```
 
 
