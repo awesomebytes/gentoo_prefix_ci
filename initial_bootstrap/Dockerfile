@@ -38,9 +38,6 @@ RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
 
-# Patch bug #668940
-COPY circular_dependencies.patch circular_dependencies.patch
-RUN patch < circular_dependencies.patch
 
 # Bootstrap Gentoo Prefix
 # This stops on emerge of gcc-8.2.0-r4, bug #672042
@@ -48,10 +45,7 @@ RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh || true
-# Was asked to do dmesg to check if its out of memory error
-# RUN dmesg
-# So we just do it again to get thru
-# hopefully avoiding the circular dependencies error too, thanks to the patch
+
 RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
