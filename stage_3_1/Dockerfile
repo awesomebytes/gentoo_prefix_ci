@@ -126,9 +126,10 @@ RUN echo "Y\n\
 ${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh || true
 
-# # On * running emerge -u system
-# # we fall into circular dependencies again, so we do the same we did for ${EPREFIX}/tmp
-# RUN cp ${EPREFIX}/tmp/etc/portage/package.use ${EPREFIX}/etc/portage
+# this bug seems to be back
+# On * running emerge -u system
+# we fall into circular dependencies again, so we do the same we did for ${EPREFIX}/tmp
+RUN cp ${EPREFIX}/tmp/etc/portage/package.use ${EPREFIX}/etc/portage
 
 # RUN echo "Y\n\
 # \n\
