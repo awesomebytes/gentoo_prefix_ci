@@ -102,14 +102,14 @@ RUN sed -i 's/# END PREFIX LOCAL/# END PREFIX LOCAL\n        return 0/g' ${EPREF
 # Then we will get
 # * Failed Running aclocal !
 # This is a very ugly workaround
-RUN ln -s ${EPREFIX}/tmp/usr/bin/automake-1.16 ${EPREFIX}/usr/bin/automake-1.16 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/aclocal-1.16 ${EPREFIX}/usr/bin/aclocal-1.16 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autoconf-2.69  ${EPREFIX}/usr/bin/autoconf-2.69 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autoheader-2.69 ${EPREFIX}/usr/bin/autoheader-2.69 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autom4te-2.69 ${EPREFIX}/usr/bin/autom4te-2.69 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autoreconf-2.69 ${EPREFIX}/usr/bin/autoreconf-2.69 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autoscan-2.69 ${EPREFIX}/usr/bin/autoscan-2.69 && \
-    ln -s ${EPREFIX}/tmp/usr/bin/autoupdate-2.69 ${EPREFIX}/usr/bin/autoupdate-2.69
+# RUN ln -s ${EPREFIX}/tmp/usr/bin/automake-1.16 ${EPREFIX}/usr/bin/automake-1.16 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/aclocal-1.16 ${EPREFIX}/usr/bin/aclocal-1.16 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autoconf-2.69  ${EPREFIX}/usr/bin/autoconf-2.69 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autoheader-2.69 ${EPREFIX}/usr/bin/autoheader-2.69 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autom4te-2.69 ${EPREFIX}/usr/bin/autom4te-2.69 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autoreconf-2.69 ${EPREFIX}/usr/bin/autoreconf-2.69 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autoscan-2.69 ${EPREFIX}/usr/bin/autoscan-2.69 && \
+#     ln -s ${EPREFIX}/tmp/usr/bin/autoupdate-2.69 ${EPREFIX}/usr/bin/autoupdate-2.69
 
 RUN echo "Y\n\
 \n\
