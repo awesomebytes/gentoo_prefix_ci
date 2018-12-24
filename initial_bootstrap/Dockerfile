@@ -46,10 +46,10 @@ RUN echo "Y\n\
 ${EPREFIX}\n\
 luck\n" | ./bootstrap-prefix.sh || true
 
-RUN echo "Y\n\
-\n\
-${EPREFIX}\n\
-luck\n" | ./bootstrap-prefix.sh || true
+# RUN echo "Y\n\
+# \n\
+# ${EPREFIX}\n\
+# luck\n" | ./bootstrap-prefix.sh || true
 # # To workaround bug #670836
 # # perl error about errno.h and error_t.h
 # RUN cp ${EPREFIX}/usr/include/errno.h ${EPREFIX}/tmp/usr/include/errno.h && mkdir -p ${EPREFIX}/tmp/usr/include/bits/types && cp ${EPREFIX}/usr/include/bits/types/error_t.h ${EPREFIX}/tmp/usr/include/bits/types
