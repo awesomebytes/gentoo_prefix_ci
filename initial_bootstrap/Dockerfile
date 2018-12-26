@@ -44,7 +44,7 @@ ENV EPREFIX /tmp/gentoo
 RUN echo "Y\n\
 \n\
 ${EPREFIX}\n\
-luck\n" | ./bootstrap-prefix.sh || true
+luck\n" | ./bootstrap-prefix.sh
 
 # RUN echo "Y\n\
 # \n\
