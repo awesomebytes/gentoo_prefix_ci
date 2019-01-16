@@ -1,0 +1,31 @@
+FROM fedora:28
+
+RUN dnf check-update
+RUN dnf install @development-tools -y
+RUN dnf install sudo -y
+
+# Create user
+RUN useradd --create-home --shell=/bin/bash user
+RUN chown -R user /home/user/
+# Add the user to sudoers
+RUN chmod -R o-w /etc/sudoers.d/
+RUN usermod -aG wheel user
+# Give the user a password
+RUN echo user:user | chpasswd
+
+WORKDIR /home/user
+USER user
+
+# Let's get some specs of the machine that is running this job
+RUN cat /proc/cpuinfo
+RUN cat /proc/meminfo
+RUN df -h
+
+RUN curl -O https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+RUN chmod +x bootstrap-prefix.sh
+
+# Bootstrap Gentoo Prefix
+RUN PREFIX_DISABLE_RAP=yes ./bootstrap-prefix.sh /tmp/gentoo noninteractive
+
+
+ENTRYPOINT ["/bin/bash"]
