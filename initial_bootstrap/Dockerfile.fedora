@@ -1,6 +1,6 @@
 FROM fedora:28
 
-RUN dnf check-update
+RUN dnf check-update || true
 RUN dnf install @development-tools -y
 RUN dnf install sudo -y
 
