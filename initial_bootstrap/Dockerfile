@@ -41,9 +41,9 @@ ENV EPREFIX /tmp/gentoo
 
 # Bootstrap Gentoo Prefix
 # This stops on emerge of gcc-8.2.0-r4, bug #672042
-RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
 # # To workaround bug #670836
 # # perl error about errno.h and error_t.h
 # RUN cp ${EPREFIX}/usr/include/errno.h ${EPREFIX}/tmp/usr/include/errno.h && mkdir -p ${EPREFIX}/tmp/usr/include/bits/types && cp ${EPREFIX}/usr/include/bits/types/error_t.h ${EPREFIX}/tmp/usr/include/bits/types
@@ -63,13 +63,13 @@ RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 # RUN mkdir ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && cd ${EPREFIX}/tmp/usr/lib/python-exec/python2.7 && ln -s ../../../bin/python2.7 python2 && ln -s python2 python
 
 # # Let's go again
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
 
 # # Here perl went thru, so we need to go back to use the system one to avoid
 # # libperl.so.5.26: cannot open shared object file: No such file or directory
 # RUN rm -f ${EPREFIX}/tmp/usr/bin/perl && ln -s /usr/bin/perl ${EPREFIX}/tmp/usr/bin/perl
 
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
 
 # # Workaround
 # # * Running eautoreconf in '/tmp/gentoo/var/tmp/portage/dev-libs/libgcrypt-1.8.4/work/libgcrypt-1.8.4' ...
@@ -89,19 +89,19 @@ RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 #     ln -s ${EPREFIX}/tmp/usr/bin/autoscan-2.69 ${EPREFIX}/usr/bin/autoscan-2.69 && \
 #     ln -s ${EPREFIX}/tmp/usr/bin/autoupdate-2.69 ${EPREFIX}/usr/bin/autoupdate-2.69
 
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
 
 # # Workaround for
 # #  * ERROR: app-admin/metalog-20181125::gentoo failed (configure phase):
 # #  *   econf failed
 # RUN mkdir -p ${EPREFIX}/etc/portage/profile && echo "app-admin/metalog-3-r2" >> ${EPREFIX}/etc/portage/profile/package.provided
 
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
 
 # # On * running emerge -u system
 # # we fall into circular dependencies again, so we do the same we did for ${EPREFIX}/tmp
 # RUN cp ${EPREFIX}/tmp/etc/portage/package.use ${EPREFIX}/etc/portage
 
-# RUN ./bootstrap-prefix.sh ${EPREFIX} noninteractive
+# RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 
 ENTRYPOINT ["/bin/bash"]
