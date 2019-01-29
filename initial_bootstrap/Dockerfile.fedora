@@ -26,7 +26,7 @@ RUN curl -O https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstr
 RUN chmod +x bootstrap-prefix.sh
 
 # Bootstrap Gentoo Prefix
-RUN PREFIX_DISABLE_RAP=yes ./bootstrap-prefix.sh /tmp/gentoo noninteractive
+RUN PREFIX_DISABLE_RAP=yes LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh /tmp/gentoo noninteractive
 
 
 ENTRYPOINT ["/bin/bash"]
