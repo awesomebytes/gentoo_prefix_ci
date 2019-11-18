@@ -34,7 +34,9 @@ RUN cat /proc/cpuinfo
 RUN cat /proc/meminfo
 RUN df -h
 
-RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+# RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+# hack until https://bugs.gentoo.org/699718 is fixed
+COPY bootstrap-prefix.sh bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
 
