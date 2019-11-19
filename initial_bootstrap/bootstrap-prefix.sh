@@ -1861,7 +1861,7 @@ bootstrap_stage3() {
 		fi
 
         # Hack to fix build temporarily until https://bugs.gentoo.org/699718 is fixed
-        sed -i '74i\ \ \ \ \ \ \ \ sed -i "s@sbin@${ED%/}/sbin@g" "${ED%/}"/etc/init.d/rsyncd' $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild 
+        sed -i '74i\ \ \ \ \ \ \ \ sed -i "s@sbin@${EPREFIX%/}/sbin@g" "${ED%/}"/etc/init.d/rsyncd' $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild 
         cd $EPREFIX/var/db/repos/gentoo/net-misc/rsync
         ebuild $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild manifest
                 pkgs=(
