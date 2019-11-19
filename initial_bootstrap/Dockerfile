@@ -36,7 +36,7 @@ RUN df -h
 
 # RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
 # hack until https://bugs.gentoo.org/699718 is fixed
-COPY bootstrap-prefix.sh /home/user/bootstrap-prefix.sh
+COPY --chown=user:user bootstrap-prefix.sh /home/user/bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
 
