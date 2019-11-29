@@ -963,7 +963,64 @@ bootstrap_python() {
 	if ${patch}; then
 		# This patch is critical and needs to be applied even
 		# when using the otherwise unpatched sources.
-		efetch "http://dev.gentoo.org/~grobian/distfiles/python-3.6-02_all_disable_modules_and_ssl.patch"
+		# In Fedora, cause of https://bugs.gentoo.org/674784, we workaround by providing the patch ourselves
+		efetch "http://dev.gentoo.org/~grobian/distfiles/python-3.6-02_all_disable_modules_and_ssl.patch" || echo "--- setup.py
++++ setup.py
+@@ -43,7 +43,17 @@
+ COMPILED_WITH_PYDEBUG = ('--with-pydebug' in sysconfig.get_config_var(\"CONFIG_ARGS\"))
+ 
+ # This global variable is used to hold the list of modules to be disabled.
+-disabled_module_list = []
++pdm_env = \"PYTHON_DISABLE_MODULES\"
++if pdm_env in os.environ:
++    disabled_module_list = os.environ[pdm_env].split()
++else:
++    disabled_module_list = []
++
++pds_env = \"PYTHON_DISABLE_SSL\"
++if pds_env in os.environ:
++    disable_ssl = os.environ[pds_env]
++else:
++    disable_ssl = 0
+ 
+ def add_dir_to_list(dirlist, dir):
+     \"\"\"Add the directory 'dir' to the list 'dirlist' (after any relative
+@@ -487,6 +497,7 @@
+             return ['m']
+ 
+     def detect_modules(self):
++        global disable_ssl
+         # Ensure that /usr/local is always used, but the local build
+         # directories (i.e. '.' and 'Include') must be first.  See issue
+         # 10520.
+@@ -818,7 +829,7 @@
+         ssl_incs = find_file('openssl/ssl.h', inc_dirs,
+                              search_for_ssl_incs_in
+                              )
+-        if ssl_incs is not None:
++        if ssl_incs is not None and not disable_ssl:
+             krb5_h = find_file('krb5.h', inc_dirs,
+                                ['/usr/kerberos/include'])
+             if krb5_h:
+@@ -829,7 +840,8 @@
+                                      ] )
+ 
+         if (ssl_incs is not None and
+-            ssl_libs is not None):
++            ssl_libs is not None and
++            not disable_ssl):
+             exts.append( Extension('_ssl', ['_ssl.c'],
+                                    include_dirs = ssl_incs,
+                                    library_dirs = ssl_libs,
+@@ -862,7 +874,7 @@
+ 
+         #print('openssl_ver = 0x%08x' % openssl_ver)
+         min_openssl_ver = 0x00907000
+-        have_any_openssl = ssl_incs is not None and ssl_libs is not None
++        have_any_openssl = ssl_incs is not None and ssl_libs is not None and not disable_ssl
+         have_usable_openssl = (have_any_openssl and
+                                openssl_ver >= min_openssl_ver)
+" > "${DISTDIR}"/python-3.6-02_all_disable_modules_and_ssl.patch
 		patch -p0 < "${DISTDIR}"/python-3.6-02_all_disable_modules_and_ssl.patch
 	fi
 
