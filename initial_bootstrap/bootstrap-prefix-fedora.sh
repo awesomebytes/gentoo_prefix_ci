@@ -43,11 +43,12 @@ efetch() {
 		if [[ -z ${FETCH_COMMAND} ]] ; then
 			# Try to find a download manager, we only deal with wget,
 			# curl, FreeBSD's fetch and ftp.
-			if [[ x$(type -t wget) == "xfile" ]] ; then
-				FETCH_COMMAND="wget"
-				[[ $(wget -h) == *"--no-check-certificate"* ]] \
-					&& FETCH_COMMAND+=" --no-check-certificate"
-			elif [[ x$(type -t curl) == "xfile" ]] ; then
+			# Fedora patch... ignore wget as it does not have SSL support
+			# if [[ x$(type -t wget) == "xfile" ]] ; then
+			# 	FETCH_COMMAND="wget"
+			# 	[[ $(wget -h) == *"--no-check-certificate"* ]] \
+			# 		&& FETCH_COMMAND+=" --no-check-certificate"
+			if [[ x$(type -t curl) == "xfile" ]] ; then
 				FETCH_COMMAND="curl -f -L -O"
 			elif [[ x$(type -t fetch) == "xfile" ]] ; then
 				FETCH_COMMAND="fetch"

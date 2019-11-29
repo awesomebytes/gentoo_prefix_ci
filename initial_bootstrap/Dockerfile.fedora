@@ -4,6 +4,7 @@ RUN dnf check-update || true
 RUN dnf install @development-tools -y
 RUN dnf install gcc-c++ -y
 RUN dnf install sudo -y
+RUN dnf install wget -y
 
 # Create user
 RUN useradd --create-home --shell=/bin/bash user
@@ -22,11 +23,15 @@ RUN cat /proc/cpuinfo
 RUN cat /proc/meminfo
 RUN df -h
 
-RUN curl -O https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
-RUN chmod +x bootstrap-prefix.sh
+# Hack to try to make it actually bootstrap
+# Both cause of https://bugs.gentoo.org/699718
+# and https://bugs.gentoo.org/674784
+# RUN curl -O https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+COPY --chown=user:user bootstrap-prefix-fedora.sh /home/user/bootstrap-prefix-fedora.sh
+RUN chmod +x bootstrap-prefix-fedora.sh
 
 # Bootstrap Gentoo Prefix
-RUN PREFIX_DISABLE_RAP=yes LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh /tmp/gentoo noninteractive
+RUN PREFIX_DISABLE_RAP=yes LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix-fedora.sh /tmp/gentoo noninteractive
 
 
 ENTRYPOINT ["/bin/bash"]
