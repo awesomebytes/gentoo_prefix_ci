@@ -31,16 +31,14 @@ Every night (00:00) Sydney time (GMT +10h) the Azure pipelines build farm will b
 [azure-pipelines.yaml](azure-pipelines.yaml) defines what jobs run. Every job pushes a docker image to [awesomebytes DockerHub](https://hub.docker.com/u/awesomebytes/) with the end of the job status.
 Right now the build is divided in 3 steps (check the corresponding Dockerfile to see the commands executed):
 
-1. [Initial bootstrap](initial_bootstrap). Goes thru stage 1 and stage 2 until it fails in stage 3. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_latest_image_initial/)
-2. [stage_3_1](stage_3_1) patches errors and continues stage 3 until we need further patching. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_latest_image_stage_3_1/)
-3. [stage_3_2](stage_3_2) last patch and re-run of stage 3 until finished. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_latest_image_stage_3_2/)
+1. [Initial bootstrap](initial_bootstrap). Bootstraps Gentoo Prefix fully. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_latest_image_initial/)
 
 You can use any of those images (intermediate ones to maybe try to fix the workarounds done as of now, or the final one to play with Gento Prefix). Just do:
 
 ```bash
 # To try Gentoo Prefix already bootstrapped in Docker over Ubuntu 16.04
-docker pull awesomebytes/gentoo_prefix_latest_image_stage_3_2
-docker run -it awesomebytes/gentoo_prefix_latest_image_stage_3_2
+docker pull awesomebytes/gentoo_prefix_latest_image_initial
+docker run -it awesomebytes/gentoo_prefix_latest_image_initial
 ```
 
 

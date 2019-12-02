@@ -180,39 +180,39 @@ jobs:
         githubrelease --github-token $(GitHub_Token) release $(Build.Repository.Name) create "${RELEASE_TAG}" --publish --name "${RELEASE_NAME}" --body "${BODY}" "${RELEASE_FILE_NAME}"
       displayName: 'Create Release'
 
-  - job: "bootstrap_on_fedora_rap_off"
-    timeoutInMinutes: 0
+  # - job: "bootstrap_on_fedora_rap_off"
+  #   timeoutInMinutes: 0
 
-    pool:
-      vmImage: 'Ubuntu 16.04'
+  #   pool:
+  #     vmImage: 'Ubuntu 16.04'
 
-    variables:
-      docker_image_name: gentoo_prefix_latest_image_initial_fedora
+  #   variables:
+  #     docker_image_name: gentoo_prefix_latest_image_initial_fedora
 
-    steps:
-    - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
-      displayName: 'docker login'
-    # We divide the boostrap in 3 parts to not go over the 6h limit as gcc takes ages
-    - script: cd initial_bootstrap && docker build -f Dockerfile.fedora -t $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) .
-      displayName: 'docker build'
-      # This means up to 6h
-      timeoutInMinutes: 0
-      # Even if it fails I want to push the image to DockerHub for inspection
-      # continueOnError: true
-    # The variables are set on the Build options on the web interface
-    # Try to tag the latest failed image we ran
-    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
-      displayName: 'create image to push to DockerHub'
-      condition: failed()
-    # Push it
-    - script: docker push $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
-      displayName: 'push image to DockerHub'
-      condition: always()
-    # Tag as :latest too
-    - script: docker tag $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) $(DockerHub_user)/$(docker_image_name):latest
-      displayName: 'tag as latest'
-      condition: always()
-    # Push as latest
-    - script: docker push $(DockerHub_user)/$(docker_image_name):latest
-      displayName: 'push latest to DockerHub'
-      condition: always()
+  #   steps:
+  #   - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
+  #     displayName: 'docker login'
+  #   # We divide the boostrap in 3 parts to not go over the 6h limit as gcc takes ages
+  #   - script: cd initial_bootstrap && docker build -f Dockerfile.fedora -t $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) .
+  #     displayName: 'docker build'
+  #     # This means up to 6h
+  #     timeoutInMinutes: 0
+  #     # Even if it fails I want to push the image to DockerHub for inspection
+  #     # continueOnError: true
+  #   # The variables are set on the Build options on the web interface
+  #   # Try to tag the latest failed image we ran
+  #   - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
+  #     displayName: 'create image to push to DockerHub'
+  #     condition: failed()
+  #   # Push it
+  #   - script: docker push $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
+  #     displayName: 'push image to DockerHub'
+  #     condition: always()
+  #   # Tag as :latest too
+  #   - script: docker tag $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) $(DockerHub_user)/$(docker_image_name):latest
+  #     displayName: 'tag as latest'
+  #     condition: always()
+  #   # Push as latest
+  #   - script: docker push $(DockerHub_user)/$(docker_image_name):latest
+  #     displayName: 'push latest to DockerHub'
+  #     condition: always()
