@@ -1,0 +1,14 @@
+# Prepared Ubuntu 16.04 with stage1 bootstrapped
+FROM awesomebytes/gentoo_prefix_ci_stage1
+
+# Let's get some specs of the machine that is running this job
+RUN cat /proc/cpuinfo
+RUN cat /proc/meminfo
+RUN df -h
+
+# Bootstrap Gentoo Prefix
+# CPU count borrowed from the bootstrap script
+RUN ncpu=$(cat /proc/cpuinfo | grep processor | wc -l); ncpu=$((ncpu + 0)); tcpu=$((ncpu / 2 + 1))
+RUN USE_CPU_CORES=$tcpu LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} stage2
+
+ENTRYPOINT ["/bin/bash"]

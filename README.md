@@ -1,4 +1,4 @@
-# gentoo_prefix_ci_test
+# gentoo_prefix_ci
 [![Build Status](https://dev.azure.com/12719821/12719821/_apis/build/status/awesomebytes.gentoo_prefix_ci)](https://dev.azure.com/12719821/12719821/_build/latest?definitionId=2)
 
 A [Gentoo Prefix](https://wiki.gentoo.org/wiki/Project:Prefix) continuous integration repo.

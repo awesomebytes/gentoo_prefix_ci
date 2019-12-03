@@ -1,0 +1,21 @@
+# Prepared Ubuntu 16.04
+FROM awesomebytes/gentoo_prefix_ci_prepare
+
+# Let's get some specs of the machine that is running this job
+RUN cat /proc/cpuinfo
+RUN cat /proc/meminfo
+RUN df -h
+
+# RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+# hack until https://bugs.gentoo.org/699718 is fixed
+COPY --chown=user:user bootstrap-prefix.sh /home/user/bootstrap-prefix.sh
+RUN chmod +x bootstrap-prefix.sh
+ENV EPREFIX /tmp/gentoo
+
+
+# Bootstrap Gentoo Prefix
+# CPU count borrowed from the bootstrap script
+RUN ncpu=$(cat /proc/cpuinfo | grep processor | wc -l); ncpu=$((ncpu + 0)); tcpu=$((ncpu / 2 + 1))
+RUN USE_CPU_CORES=$tcpu LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} stage1
+
+ENTRYPOINT ["/bin/bash"]
