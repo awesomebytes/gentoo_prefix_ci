@@ -32,16 +32,18 @@ Every night (00:00) Sydney time (GMT +10h) the Azure pipelines build farm will b
 Right now the build is divided in 3 steps (check the corresponding Dockerfile to see the commands executed):
 
 1. [Dockerfile.prepare](bootstrap_stage/Dockerfile.prepare). Prepares an image with the minimal requirements to build and debug the bootstrap. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_prepare/)
-1. [Dockerfile.stage1](bootstrap_stage/Dockerfile.stage1). Bootstraps stage 1. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage1/)
-1. [Dockerfile.stage2](bootstrap_stage/Dockerfile.stage2). Bootstraps stage 2. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage2/)
-1. [Dockerfile.stage3](bootstrap_stage/Dockerfile.stage3). Bootstraps stage 3. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage3/)
+2. [Dockerfile.stage1](bootstrap_stage/Dockerfile.stage1). Bootstraps stage 1. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage1/)
+3. [Dockerfile.stage2](bootstrap_stage/Dockerfile.stage2). Bootstraps stage 2. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage2/)
+4. [Dockerfile.stage3](bootstrap_stage/Dockerfile.stage3). Bootstraps stage 3. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_stage3/)
+5. [Dockerfile.emergesystem](bootstrap_stage/Dockerfile.emergesystem). Does `emerge -e system` after stage 3 to finish bootstrapping the system. [DockerHub image](https://hub.docker.com/r/awesomebytes/gentoo_prefix_ci_emerge_system/)
+
 
 You can use any of those images (intermediate ones to debug, or the final one to play with Gentoo Prefix). Just do:
 
 ```bash
 # To try Gentoo Prefix already bootstrapped in Docker over Ubuntu 16.04 in /tmp/gentoo
-docker pull awesomebytes/gentoo_prefix_ci_stage3
-docker run -it awesomebytes/gentoo_prefix_ci_stage3
+docker pull awesomebytes/gentoo_prefix_ci_emerge_system
+docker run -it awesomebytes/gentoo_prefix_ci_emerge_system
 ```
 
 

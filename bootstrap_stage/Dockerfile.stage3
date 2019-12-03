@@ -7,6 +7,6 @@ RUN cat /proc/meminfo
 RUN df -h
 
 # Bootstrap Gentoo Prefix
-RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive stage3
 
 ENTRYPOINT ["/bin/bash"]

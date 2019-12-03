@@ -2832,6 +2832,8 @@ EOF
 		exit 1
 	fi
 
+	[[ ${STOP_AFTER_STAGE} == 'stage3' ]] && exit 0
+
 	local cmd="emerge -e system"
 	if [[ -e ${EPREFIX}/var/cache/edb/mtimedb ]] && \
 		grep -q resume_backup "${EPREFIX}"/var/cache/edb/mtimedb ;

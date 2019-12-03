@@ -158,10 +158,48 @@ jobs:
       displayName: 'push latest to DockerHub'
       condition: always()
 
+  - job: "bootstrap_emerge_system"
+    timeoutInMinutes: 0
+    dependsOn: "bootstrap_stage_3"
+
+    pool:
+      vmImage: 'Ubuntu 16.04'
+
+    variables:
+      docker_image_name: gentoo_prefix_ci_emerge_system
+
+    steps:
+    # The variables are set on the Build options on the web interface
+    - script: docker login -u $(DockerHub_user) -p $(DockerHub_password)
+      displayName: 'docker login'
+
+    - script: cd bootstrap_stage && docker build -f Dockerfile.emergesystem -t $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) .
+      displayName: 'docker build stage_3'
+      # This means up to 6h
+      timeoutInMinutes: 0
+      # Even if it fails I want to push the image to DockerHub for inspection
+      # continueOnError: true
+    # # Try to tag the latest failed image we ran
+    - script: docker tag `docker ps -a -l -q | xargs docker commit | awk -F":" '{print $2}'` $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
+      displayName: 'create image to push to DockerHub'
+      condition: failed()
+    # Push it
+    - script: docker push $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)
+      displayName: 'push image to DockerHub'
+      condition: always()
+    # Tag as :latest too
+    - script: docker tag $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) $(DockerHub_user)/$(docker_image_name):latest
+      displayName: 'tag as latest'
+      condition: always()
+    # Push as latest
+    - script: docker push $(DockerHub_user)/$(docker_image_name):latest
+      displayName: 'push latest to DockerHub'
+      condition: always()
+
 
   - job: package_stage
     timeoutInMinutes: 0
-    dependsOn: "bootstrap_stage_3"
+    dependsOn: "bootstrap_emerge_system"
 
     pool:
       vmImage: 'Ubuntu 16.04'
