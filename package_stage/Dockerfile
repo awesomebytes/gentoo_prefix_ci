@@ -1,4 +1,4 @@
-FROM awesomebytes/gentoo_prefix_latest_image_stage_3_2
+FROM awesomebytes/gentoo_prefix_ci_emerge_system
 
 # Add helpful scripts to use Gentoo Prefix on /tmp/gentoo
 # startprefix just makes sure the softlink to /tmp/gentoo is done
