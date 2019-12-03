@@ -8,14 +8,14 @@ RUN df -h
 
 # RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
 # hack until https://bugs.gentoo.org/699718 is fixed
+# It also contains a workaround to be able to bootstrap stages separately while in
+# noninteractive mode
 COPY --chown=user:user bootstrap-prefix.sh /home/user/bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
 
 
 # Bootstrap Gentoo Prefix
-# CPU count borrowed from the bootstrap script
-RUN ncpu=$(cat /proc/cpuinfo | grep processor | wc -l); ncpu=$((ncpu + 0)); tcpu=$((ncpu / 2 + 1))
-RUN USE_CPU_CORES=$tcpu LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} stage1
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive stage1
 
 ENTRYPOINT ["/bin/bash"]

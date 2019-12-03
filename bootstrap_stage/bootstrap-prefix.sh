@@ -2741,6 +2741,8 @@ EOF
 		exit 1
 	fi
 
+	[[ ${STOP_AFTER_STAGE} == 'stage1' ]] && exit 0
+
 	unset ROOT
 
 	# stage1 has set a profile, which defines CHOST, so unset any CHOST
@@ -2789,6 +2791,8 @@ Remember you might find some clues in ${EPREFIX}/stage2.log
 EOF
 		exit 1
 	fi
+
+	[[ ${STOP_AFTER_STAGE} == 'stage2' ]] && exit 0
 
 	# new bash
 	hash -r
@@ -3060,6 +3064,9 @@ einfo "host:   ${CHOST}"
 einfo "prefix: ${ROOT}"
 
 TODO=${2}
+# In order to bootstrap in phases for CI, allow to stop after a specific stage
+# in noninteractive mode
+STOP_AFTER_STAGE=${3}
 if [[ ${TODO} != "noninteractive" && $(type -t bootstrap_${TODO}) != "function" ]];
 then
 	eerror "bootstrap target ${TODO} unknown"
