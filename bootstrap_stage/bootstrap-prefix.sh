@@ -432,6 +432,11 @@ bootstrap_setup() {
 			rev=${CHOST##*darwin}
 			profile="prefix/darwin/macos/10.$((rev - 4))/x86"
 			;;
+		x86_64-apple-darwin19)
+			# handle newer releases on the last profile we have headers
+			# and stuff for (https://opensource.apple.com/)
+			profile="prefix/darwin/macos/10.14/x64"
+			;;
 		x86_64-apple-darwin9|x86_64-apple-darwin1[012345678])
 			rev=${CHOST##*darwin}
 			profile="prefix/darwin/macos/10.$((rev - 4))/x64"
@@ -963,7 +968,6 @@ bootstrap_python() {
 	if ${patch}; then
 		# This patch is critical and needs to be applied even
 		# when using the otherwise unpatched sources.
-		# In Fedora, cause of https://bugs.gentoo.org/674784, we workaround by providing the patch ourselves
 		efetch "http://dev.gentoo.org/~grobian/distfiles/python-3.6-02_all_disable_modules_and_ssl.patch"
 		patch -p0 < "${DISTDIR}"/python-3.6-02_all_disable_modules_and_ssl.patch
 	fi
@@ -1862,7 +1866,6 @@ bootstrap_stage3() {
 		fi
 
         # Hack to fix build temporarily until https://bugs.gentoo.org/699718 is fixed
-        # sed -i '74i\ \ \ \ \ \ \ \ sed -i "s@sbin@${EPREFIX%/}sbin@g" "${ED%/}"/etc/init.d/rsyncd' $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild 
         sed -i '74i\ \ \ \ \ \ \ \ rm "${ED%/}"/etc/init.d/rsyncd' $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild 
         cd $EPREFIX/var/db/repos/gentoo/net-misc/rsync
         ebuild $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild manifest
@@ -2055,7 +2058,7 @@ bootstrap_stage3() {
 
 	# "wipe" mtimedb such that the resume list is proper after this stage
 	# (--depclean may fail, which is ok)
-	sed -i -e 's/resume_backup/cleared/' "${EPREFIX}"/var/cache/edb/mtimedb
+	sed -i -e 's/resume/cleared/' "${ROOT}"/var/cache/edb/mtimedb
 
 	einfo "stage3 successfully finished"
 }
@@ -2836,7 +2839,7 @@ EOF
 
 	local cmd="emerge -e system"
 	if [[ -e ${EPREFIX}/var/cache/edb/mtimedb ]] && \
-		grep -q resume_backup "${EPREFIX}"/var/cache/edb/mtimedb ;
+		grep -q resume "${EPREFIX}"/var/cache/edb/mtimedb ;
 	then
 		cmd="emerge --resume"
 	fi
