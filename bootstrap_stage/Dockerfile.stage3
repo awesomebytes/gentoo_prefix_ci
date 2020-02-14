@@ -7,6 +7,8 @@ RUN cat /proc/meminfo
 RUN df -h
 
 # Bootstrap Gentoo Prefix
+# Quick dirty hack to get thru meanwhile https://bugs.gentoo.org/709570 gets solved
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive stage3 || true
 RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive stage3
 
 ENTRYPOINT ["/bin/bash"]
