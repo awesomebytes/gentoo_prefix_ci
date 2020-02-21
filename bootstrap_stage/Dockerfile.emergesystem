@@ -7,11 +7,6 @@ RUN cat /proc/meminfo
 RUN df -h
 
 # Bootstrap Gentoo Prefix
-# Quick dirty hack to get thru meanwhile https://bugs.gentoo.org/709570 gets solved
-RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive || true
-# Seems like it emerges the 138 packages correctly but it returns that fail code
-# so, for now, I'll assume the build was successful
-# As the script actually fails, I'm generating the startscript myself
-RUN PATH=/tmp/gentoo/usr/bin:/tmp/gentoo/bin:/tmp/gentoo/tmp/usr/bin:/tmp/gentoo/tmp/bin:/tmp/gentoo/tmp/usr/local/bin:/usr/bin:/bin ./bootstrap-prefix.sh $EPREFIX startscript
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 
 ENTRYPOINT ["/bin/bash"]
