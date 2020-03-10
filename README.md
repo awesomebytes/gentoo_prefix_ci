@@ -49,8 +49,8 @@ You can use any of those images (intermediate ones to debug, or the final one to
 
 ```bash
 # To try Gentoo Prefix already bootstrapped in Docker over Ubuntu 16.04 in /tmp/gentoo
-docker pull awesomebytes/gentoo_prefix_ci_emerge_system
-docker run -it awesomebytes/gentoo_prefix_ci_emerge_system
+docker pull awesomebytes/gentoo_prefix_latest_image_package_stage
+docker run -it awesomebytes/gentoo_prefix_latest_image_package_stage
 ```
 
 
