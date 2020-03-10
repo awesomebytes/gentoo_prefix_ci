@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2006-2018 Gentoo Foundation; Distributed under the GPL v2
+# Copyright 2006-2019 Gentoo Authors; Distributed under the GPL v2
 
 trap 'exit 1' TERM KILL INT QUIT ABRT
 
@@ -1551,10 +1551,22 @@ do_emerge_pkgs() {
 			-pcre
 			-ssl
 			-python
+			-qmanifest -qtegrity
 			bootstrap
 			clang
 			internal-glib
 		)
+		if [[ " ${USE} " == *" prefix-stack "* ]] &&
+		   [[ ${PORTAGE_OVERRIDE_EPREFIX} == */tmp ]] &&
+		   ! grep -q '^USE=".*" # by bootstrap-prefix.sh$' "${PORTAGE_OVERRIDE_EPREFIX}/etc/portage/make.conf"
+		then
+			# With prefix-stack, the USE env var does apply to the stacked
+			# prefix only, not the base prefix (any more? since some portage
+			# version?), so we have to persist the base USE flags into the
+			# base prefix - without the additional incoming USE flags.
+			echo "USE=\"\${USE} ${myuse[*]}\" # by bootstrap-prefix.sh" \
+				>> "${PORTAGE_OVERRIDE_EPREFIX}/etc/portage/make.conf"
+		fi
 		myuse=" ${myuse[*]} "
 		local use
 		for use in ${USE} ; do
@@ -1717,7 +1729,7 @@ bootstrap_stage2() {
 	for pkg in ${compiler_stage1} ; do
 		# <glibc-2.5 does not understand .gnu.hash, use
 		# --hash-style=both to produce also sysv hash.
-		EXTRA_ECONF="--disable-bootstrap $(rapx --with-linker-hash-style=both)" \
+		EXTRA_ECONF="--disable-bootstrap $(rapx --with-linker-hash-style=both) --with-local-prefix=${ROOT}" \
 		MYCMAKEARGS="-DCMAKE_USE_SYSTEM_LIBRARY_LIBUV=OFF" \
 		GCC_MAKE_TARGET=all \
 		TPREFIX="${ROOT}" \
@@ -1858,6 +1870,24 @@ bootstrap_stage3() {
 				> "${ROOT}"/usr/bin/perl
 			chmod +x "${ROOT}"/usr/bin/perl
 		fi
+
+		# Need rsync to for linux-headers installation
+		if [[ ! -x "${ROOT}"/usr/bin/rsync ]]; then
+			cat > "${ROOT}"/usr/bin/rsync <<-EOF
+		#!${ROOT}/bin/bash
+		while (( \$# > 0 )); do
+		case \$1 in
+		-*) shift; continue ;;
+		*) break ;;
+		esac
+		done
+		dst="\$2"/\$(basename \$1)
+		mkdir -p "\${dst}"
+		cp -rv \$1/* "\${dst}"/
+		EOF
+			chmod +x "${ROOT}"/usr/bin/rsync
+		fi
+
 		# Tell dynamic loader the path of libgcc_s.so of stage2
 		if [[ ! -f "${ROOT}"/etc/ld.so.conf.d/stage2.conf ]]; then
 			mkdir -p "${ROOT}"/etc/ld.so.conf.d
@@ -1865,24 +1895,20 @@ bootstrap_stage3() {
 				> "${ROOT}"/etc/ld.so.conf.d/stage2.conf
 		fi
 
-        # Hack to fix build temporarily until https://bugs.gentoo.org/699718 is fixed
-        sed -i '74i\ \ \ \ \ \ \ \ rm "${ED%/}"/etc/init.d/rsyncd' $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild 
-        cd $EPREFIX/var/db/repos/gentoo/net-misc/rsync
-        ebuild $EPREFIX/var/db/repos/gentoo/net-misc/rsync/rsync-3.1.3.ebuild manifest
-                pkgs=(
-                        sys-apps/baselayout
-                        sys-apps/gentoo-functions
-                        app-portage/elt-patches
-                        dev-util/pkgconfig
-                        net-misc/rsync
-                        sys-kernel/linux-headers
-                        sys-libs/glibc
-                )
+		pkgs=(
+			sys-apps/baselayout
+			sys-apps/gentoo-functions
+			app-portage/elt-patches
+			sys-kernel/linux-headers
+			sys-libs/glibc
+		)
 
 		BOOTSTRAP_RAP=yes \
 		with_stack_emerge_pkgs --nodeps "${pkgs[@]}" || return 1
 		grep -q 'apiversion=9999' "${ROOT}"/usr/bin/perl && \
 			rm "${ROOT}"/usr/bin/perl
+		grep -q 'esac' "${ROOT}"/usr/bin/rsync && \
+			rm "${ROOT}"/usr/bin/rsync
 
 		pkgs=(
 			sys-devel/binutils-config
@@ -2041,8 +2067,8 @@ bootstrap_stage3() {
 		emerge --sync || emerge-webrsync || return 1
 	fi
 
-	# avoid installing git just for fun while completing @system
-	export USE="-git"
+	# avoid installing git or encryption just for fun while completing @system
+	export USE="-git -crypt"
 
 	# Portage should figure out itself what it needs to do, if anything.
 	# Avoid glib compiling for Cocoa libs if it finds them, since we're
