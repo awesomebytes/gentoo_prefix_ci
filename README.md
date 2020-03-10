@@ -9,18 +9,25 @@ Builds page (with results and shell outputs): https://dev.azure.com/12719821/127
 
 Ready-to-use releases (with instructions): https://github.com/awesomebytes/gentoo_prefix_ci/releases
 
+Ready-to-use built docker image: `docker pull awesomebytes/gentoo_prefix_latest_image_package_stage`
+
 # Try Gentoo Prefix
 Go to https://github.com/awesomebytes/gentoo_prefix_ci/releases and download the latest release (700MB~).
 
 Extract (2.2GB~):
 ```bash
-cd ~
 tar xvf gentoo_on_tmp*.tar.gz
 ```
 
 Run your **prefix** shell by doing:
 ```bash
 ./gentoo/startprefix
+```
+
+Or use Docker:
+```bash
+docker run -it gentoo_prefix_latest_image_package_stage /bin/bash
+./tmp/gentoo/startprefix
 ```
 
 
