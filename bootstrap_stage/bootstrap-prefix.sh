@@ -375,6 +375,7 @@ bootstrap_setup() {
 			echo 'CXXFLAGS="${CFLAGS}"'
 			echo "MAKEOPTS=\"${MAKEOPTS}\""
 			echo "CONFIG_SHELL=\"${ROOT}/bin/bash\""
+			echo "DISTDIR=\"${DISTDIR:-${ROOT}/var/cache/distfiles}\""
 			if is-rap ; then
 				echo "# sandbox does not work well on Prefix, bug 490246"
 				echo 'FEATURES="${FEATURES} -usersandbox -sandbox"'
@@ -1207,7 +1208,9 @@ bootstrap_sed() {
 }
 
 bootstrap_findutils() {
-	bootstrap_gnu findutils 4.5.10 || bootstrap_gnu findutils 4.2.33
+	bootstrap_gnu findutils 4.7.0 ||
+	bootstrap_gnu findutils 4.5.10 ||
+	bootstrap_gnu findutils 4.2.33
 }
 
 bootstrap_wget() {
@@ -1919,6 +1922,15 @@ bootstrap_stage3() {
 		RAP_DLINKER=$(echo "${ROOT}"/$(get_libdir)/ld*.so.[0-9])
 		export LDFLAGS="-L${ROOT}/usr/$(get_libdir) -Wl,--dynamic-linker=${RAP_DLINKER}"
 		BOOTSTRAP_RAP=yes \
+		with_stack_emerge_pkgs --nodeps "${pkgs[@]}" || return 1
+
+		# avoid circular deps with sys-libs/pam, bug#712020
+		pkgs=(
+				sys-apps/attr
+				sys-libs/libcap
+		)
+		BOOTSTRAP_RAP=yes \
+		USE="${USE} -pam" \
 		with_stack_emerge_pkgs --nodeps "${pkgs[@]}" || return 1
 	else
 		pkgs=(
