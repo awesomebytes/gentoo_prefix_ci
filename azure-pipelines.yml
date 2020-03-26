@@ -235,7 +235,7 @@ jobs:
     # Create a more user-friendly image name
     - script: docker tag $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) $(DockerHub_user)/gentoo_prefix_boostrapped:latest
       displayName: 'tag as gentoo_prefix_boostrapped:latest'
-    - script: docker push $(DockerHub_user)/$(docker_image_name):latest
+    - script: docker push $(DockerHub_user)/gentoo_prefix_boostrapped:latest
       displayName: 'push gentoo_prefix_boostrapped:latest to DockerHub'
 
     # Extract the gentoo filesystem in a .tar.lzma for distribution
