@@ -7,10 +7,12 @@
 # Author: Sammy Pfeiffer <Sammy.Pfeiffer at student.uts.edu.au>
 
 # Check if the link exists in /tmp/gentoo
+# Also check if it exists as a directory (native bootstrap in /tmp/gentoo)
 # If it doesn't exist, create it
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-if [ ! -L /tmp/gentoo ]; then
-  echo "Softlink to this Gentoo Prefix in /tmp/gentoo does not exist, creating it..."
+if [ ! -L /tmp/gentoo ] && [ ! -d /tmp/gentoo ]; then
+  # avoid giving output as this script may be used with stdout as capture output
+  # echo "Softlink to this Gentoo Prefix in /tmp/gentoo does not exist, creating it..."
   cd /tmp
   ln -s $SCRIPTPATH gentoo
 else
@@ -61,6 +63,8 @@ RETAIN="HOME=$HOME TERM=$TERM USER=$USER SHELL=$SHELL"
 [[ -n ${DISPLAY} ]] && RETAIN+=" DISPLAY=$DISPLAY"
 
 # Pass the parameters to the prefixed shell
-echo "Executing on prefixed environment:"
-echo "$*"
+# In order to be able to use the stdout of commands given, we need to silence the output of this
+# script if everything goes well
+# echo "Executing on prefixed environment:"
+# echo "$*"
 env -i $RETAIN $SHELL -lc "$*"

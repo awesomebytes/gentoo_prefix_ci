@@ -16,7 +16,7 @@ Go to https://github.com/awesomebytes/gentoo_prefix_ci/releases and download the
 
 Extract (2.2GB~):
 ```bash
-tar xvf gentoo_on_tmp*.tar.gz
+tar xvf gentoo_on_tmp*.tar.lzma
 ```
 
 Run your **prefix** shell by doing:
@@ -26,7 +26,8 @@ Run your **prefix** shell by doing:
 
 Or use Docker:
 ```bash
-docker run -it gentoo_prefix_latest_image_package_stage /bin/bash
+docker pull awesomebytes/gentoo_prefix_boostrapped
+docker run -it awesomebytes/gentoo_prefix_boostrapped /bin/bash
 ./tmp/gentoo/startprefix
 ```
 
@@ -49,8 +50,8 @@ You can use any of those images (intermediate ones to debug, or the final one to
 
 ```bash
 # To try Gentoo Prefix already bootstrapped in Docker over Ubuntu 16.04 in /tmp/gentoo
-docker pull awesomebytes/gentoo_prefix_latest_image_package_stage
-docker run -it awesomebytes/gentoo_prefix_latest_image_package_stage
+docker pull awesomebytes/gentoo_prefix_boostrapped
+docker run -it awesomebytes/gentoo_prefix_boostrapped
 ```
 
 
@@ -60,7 +61,7 @@ They offer free build pipelines for opensource projects with up to 10 parallel b
 The machines have specs similar to:
 * CPUs: 2x Intel(R) Xeon(R) CPU E5-2673 v3 @ 2.40GHz / 2.30GHz
 * RAM: 7GB
-* Disk: 94GB free disk space
+* Disk: 10GB free disk space
 
 # Just, why?
 Gentoo Prefix is an awesome framework to deploy (almost) any software in any machine where you have no privileges. Just read the [awesome use-cases article](https://wiki.gentoo.org/wiki/Project:Prefix/Use_cases). I found myself unable to bootstrap the image and neither find an already bootstrapped image. So I built this.

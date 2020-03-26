@@ -232,12 +232,21 @@ jobs:
     # Push as latest
     - script: docker push $(DockerHub_user)/$(docker_image_name):latest
       displayName: 'push latest to DockerHub'
+    # Create a more user-friendly image name
+    - script: docker tag $(DockerHub_user)/$(docker_image_name):$(Build.BuildId) $(DockerHub_user)/gentoo_prefix_boostrapped:latest
+      displayName: 'tag as gentoo_prefix_boostrapped:latest'
+    - script: docker push $(DockerHub_user)/$(docker_image_name):latest
+      displayName: 'push gentoo_prefix_boostrapped:latest to DockerHub'
 
-    # Create a temporal container to copy the gentoo_on_tmp.tar.gz
-    - script: |
-        id=$(docker create $(DockerHub_user)/$(docker_image_name))
-        docker cp $id:/tmp/gentoo_on_tmp.tar.gz $HOME
-      displayName: 'Extract gentoo_on_tmp.tar.gz from Docker image'
+    # Extract the gentoo filesystem in a .tar.lzma for distribution
+    - script: docker run --entrypoint /tmp/gentoo/executeonprefix $(DockerHub_user)/$(docker_image_name):$(Build.BuildId)  "tar -c --lzma -f - -C /tmp gentoo" > ~/gentoo_on_tmp.tar.lzma
+      displayName: 'Create .tar.lzma of /tmp/gentoo'
+
+    # # Create a temporal container to copy the gentoo_on_tmp.tar.gz
+    # - script: |
+    #     id=$(docker create $(DockerHub_user)/$(docker_image_name))
+    #     docker cp $id:/tmp/gentoo_on_tmp.tar.gz $HOME
+    #   displayName: 'Extract gentoo_on_tmp.tar.gz from Docker image'
     # Not really needed
     # - script: docker rm -v $id
     # Make a release
@@ -248,10 +257,10 @@ jobs:
     - script: |
         export DATE=$(date -I'minutes' | sed 's/+/plus/g'| sed 's/:/at/g')
         export RELEASE_TAG=release/${DATE}
-        export RELEASE_FILE_NAME=gentoo_on_tmp-${PLATFORM}_${DATE}.tar.gz
+        export RELEASE_FILE_NAME=gentoo_on_tmp-${PLATFORM}_${DATE}.tar.lzma
         export RELEASE_NAME="Gentoo Prefix on /tmp/gentoo"
-        export BODY="Use Gentoo Prefix with: tar xvf gentoo_on_tmp*.tar.gz; ./gentoo/startprefix"
-        mv $HOME/gentoo_on_tmp.tar.gz ${RELEASE_FILE_NAME}
+        export BODY="Use Gentoo Prefix with: tar xvf gentoo_on_tmp*.tar.lzma; ./gentoo/startprefix"
+        mv $HOME/gentoo_on_tmp.tar.lzma ${RELEASE_FILE_NAME}
         export PATH=$HOME/.local/bin:$PATH
         export PYTHONPATH=$HOME/.local/lib/python2.7/site-packages:$PYTHONPATH
         githubrelease --github-token $(GitHub_Token) release $(Build.Repository.Name) create "${RELEASE_TAG}" --publish --name "${RELEASE_NAME}" --body "${BODY}" "${RELEASE_FILE_NAME}"

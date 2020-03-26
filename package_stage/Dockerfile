@@ -10,7 +10,8 @@ RUN mv /tmp/gentoo/startprefix /tmp/gentoo/startprefix_original
 RUN cp startprefix /tmp/gentoo
 RUN cp executeonprefix /tmp/gentoo
 
+# We create it from out of the Dockerfile now
 # Create the .tar.gz
-RUN cd /tmp; tar cvzf /tmp/gentoo_on_tmp.tar.gz gentoo
+# RUN cd /tmp; tar cvzf /tmp/gentoo_on_tmp.tar.gz gentoo
 
 ENTRYPOINT ["/bin/bash"]

@@ -5,9 +5,10 @@
 # Author: Sammy Pfeiffer <Sammy.Pfeiffer at student.uts.edu.au>
 
 # Check if the link exists in /tmp/gentoo
+# Also check if it exists as a directory (native bootstrap in /tmp/gentoo)
 # If it doesn't exist, create it
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-if [ ! -L /tmp/gentoo ]; then
+if [ ! -L /tmp/gentoo ] && [ ! -d /tmp/gentoo ]; then
   echo "Softlink to this Gentoo Prefix in /tmp/gentoo does not exist, creating it..."
   cd /tmp
   ln -s $SCRIPTPATH gentoo
