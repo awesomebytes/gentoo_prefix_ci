@@ -259,7 +259,7 @@ jobs:
     - script: |
           echo "Try 1"
           githubrelease --help
-          export PYTHONPATH=$HOME/.local/lib/python3.6/site-packages:$PYTHONPATH
+          export PYTHONPATH=$HOME/.local/lib/python3.5/site-packages:$PYTHONPATH
           echo "Try 2"
           githubrelease --help
       displayName: 'test'
