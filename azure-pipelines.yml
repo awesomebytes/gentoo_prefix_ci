@@ -256,12 +256,15 @@ jobs:
       displayName: 'Install tools'
     - script: python3 -m pip install --user githubrelease
       displayName: 'Install tools 2'
+    - script: ls -lah $HOME/.local/lib
+      displayName: 'check python folders'
     - script: |
           echo "Try 1"
           githubrelease --help
           export PYTHONPATH=$HOME/.local/lib/python3.5/site-packages:$PYTHONPATH
           echo "Try 2"
           githubrelease --help
+          whereis githubrelease
       displayName: 'test'
     # - script: |
     #     export DATE=$(date -I'minutes' | sed 's/+/plus/g'| sed 's/:/at/g')
