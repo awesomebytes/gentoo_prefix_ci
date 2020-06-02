@@ -262,6 +262,7 @@ jobs:
           echo "Try 1"
           githubrelease --help
           export PYTHONPATH=$HOME/.local/lib/python3.5/site-packages:$PYTHONPATH
+          export PATH=$HOME/.local/bin:$PATH
           echo "Try 2"
           githubrelease --help
           whereis githubrelease
