@@ -265,6 +265,7 @@ jobs:
           echo "Try 2"
           githubrelease --help
           whereis githubrelease
+          find $HOME -name githubrelease
       displayName: 'test'
     # - script: |
     #     export DATE=$(date -I'minutes' | sed 's/+/plus/g'| sed 's/:/at/g')
