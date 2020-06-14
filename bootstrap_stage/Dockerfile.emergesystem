@@ -2,9 +2,7 @@
 FROM awesomebytes/gentoo_prefix_ci_stage3
 
 # Let's get some specs of the machine that is running this job
-RUN cat /proc/cpuinfo
-RUN cat /proc/meminfo
-RUN df -h
+RUN cat /proc/cpuinfo && cat /proc/meminfo && df -h
 
 # Bootstrap Gentoo Prefix
 RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
