@@ -250,6 +250,12 @@ jobs:
     # Not really needed
     # - script: docker rm -v $id
     # Make a release
+    # Use Python version
+    # Use the specified version of Python from the tool cache, optionally adding it to the PATH
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7'
+        addToPath: true
     - script: python3 -m pip install --upgrade pip setuptools wheel
       displayName: 'Install tools'
     - script: python3 -m pip install --user githubrelease
