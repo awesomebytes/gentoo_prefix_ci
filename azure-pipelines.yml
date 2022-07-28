@@ -9,7 +9,7 @@ jobs:
     timeoutInMinutes: 0
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_ci_prepare
@@ -48,7 +48,7 @@ jobs:
     dependsOn: "bootstrap_prepare_image"
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_ci_stage1
@@ -87,7 +87,7 @@ jobs:
     dependsOn: "bootstrap_stage_1"
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_ci_stage2
@@ -125,7 +125,7 @@ jobs:
     dependsOn: "bootstrap_stage_2"
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_ci_stage3
@@ -163,7 +163,7 @@ jobs:
     dependsOn: "bootstrap_stage_3"
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_ci_emerge_system
@@ -202,7 +202,7 @@ jobs:
     dependsOn: "bootstrap_emerge_system"
 
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: 'Ubuntu 20.04'
 
     variables:
       docker_image_name: gentoo_prefix_latest_image_package_stage
