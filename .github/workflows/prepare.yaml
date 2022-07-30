@@ -3,73 +3,89 @@ on:
 
 name: Gentoo Prefix CI
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  EPREFIX: /tmp/gentoo
+  LATEST_TREE_YES: 1
+  TESTING_PV: latest
+
 jobs:
   bootstrap:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: prepare
+      - name: sysinfo
         run: |
-          docker build -f bootstrap_stage/Dockerfile.prepare .
+          id
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+          df -h
+
+      - name: download bootstrap script
+        run: |
+          wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+          chmod +x bootstrap-prefix.sh
 
       - name: stage1
-        run: |
-          docker build -f bootstrap_stage/Dockerfile.stage1 .
+        run: STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage2
-        run: |
-          docker build -f bootstrap_stage/Dockerfile.stage2 .
-
-#      - name: stage3
-#        run: |
-#          docker build -f bootstrap_stage/Dockerfile.stage3 .
+        run: STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage3
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: bootstrap_stage/Dockerfile.stage3
-          tags: prefix:stage3
-          outputs: type=docker,dest=/tmp/prefix_stage3.tar
+        run: STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: cache
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: prefix_stage3
-          path: /tmp/prefix_stage3.tar
+          path: |
+            bootstrap-prefix.sh
+            ${{ env.EPREFIX }}
+          retention-days: 5
 
   emerge-system:
     needs: bootstrap
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: prepare
-        run: |
-          docker build -f bootstrap_stage/Dockerfile.prepare .
-
       - name: restore cache
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: prefix_stage3
-          path: /tmp
-
-      - name: load image
-        run: |
-          docker load --input /tmp/prefix_stage3.tar
-          docker image ls -a
+          path: /
 
       - name: emerge system
         run: |
-          docker build -f bootstrap_stage/Dockerfile.emergesystem .
+          chmod +x bootstrap-prefix.sh
+          ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: ${{ env.EPREFIX }}
+          push: true
