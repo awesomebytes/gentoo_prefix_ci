@@ -1,5 +1,6 @@
 # Just Ubuntu 16.04 with a user called user and some basic tools
-FROM ubuntu:16.04
+FROM ubuntu:20.04
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 # Add sudo
@@ -19,7 +20,7 @@ RUN apt-get install build-essential -y
 
 # Nice tools to have
 RUN apt-get install bash-completion nano net-tools less iputils-ping vim emacs -y
-RUN apt-get install python-pip python-dev  -y
+RUN apt-get install python3-pip python3-dev  -y
 RUN apt-get install wget -y
 # To enable ssh
 RUN apt-get install openssh-server -y

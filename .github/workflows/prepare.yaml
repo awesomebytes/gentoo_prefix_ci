@@ -1,0 +1,20 @@
+on:
+  push
+
+name: Bootstrap Gentoo Prefix
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: prepare
+        run: |
+          docker build -f bootstrap_stage/Dockerfile.prepare .
