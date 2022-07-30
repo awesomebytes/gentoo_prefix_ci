@@ -18,3 +18,16 @@ jobs:
       - name: prepare
         run: |
           docker build -f bootstrap_stage/Dockerfile.prepare .
+
+      - name: stage1
+        run: |
+          docker build -f bootstrap_stage/Dockerfile.stage1 .
+
+      - name: stage2
+        run: |
+          docker build -f bootstrap_stage/Dockerfile.stage2 .
+
+#  stage1:
+#    needs: prepare
+#   runs-on: 
+
