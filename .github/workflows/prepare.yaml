@@ -39,13 +39,16 @@ jobs:
       - name: stage3
         run: STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
+      - name: package bootstrap stage
+        run: tar -cvf prefix_stage3.tar ${{ env.EPREFIX }}
+
       - name: cache
         uses: actions/upload-artifact@v3
         with:
           name: prefix_stage3
           path: |
             bootstrap-prefix.sh
-            ${{ env.EPREFIX }}
+            prefix_stage3.tar
           retention-days: 5
 
   emerge-system:
@@ -62,16 +65,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: restore cache
+      - name: download cache
         uses: actions/download-artifact@v3
         with:
           name: prefix_stage3
           path: /
 
-      - name: emerge system
+      - name: extract cache
         run: |
+          tar -xvf prefix_stage3.tar -C $(dirname $${{ env.EPREFIX }})
           chmod +x bootstrap-prefix.sh
-          ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+
+      - name: emerge system
+        run: ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
