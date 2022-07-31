@@ -9,6 +9,7 @@ env:
   EPREFIX: /tmp/gentoo
   LATEST_TREE_YES: 1
   TESTING_PV: latest
+  MAKEOPTS: -j1
 
 jobs:
   bootstrap:
@@ -31,13 +32,13 @@ jobs:
           chmod +x bootstrap-prefix.sh
 
       - name: stage1
-        run: STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage2
-        run: STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage3
-        run: STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: package bootstrap stage
         run: tar -cvf prefix_stage3.tar ${{ env.EPREFIX }}
