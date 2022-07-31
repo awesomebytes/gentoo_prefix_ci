@@ -47,9 +47,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: prefix_stage3
-          path: |
-            bootstrap-prefix.sh
-            prefix_stage3.tar
+          path: prefix_stage3.tar
           retention-days: 5
 
   emerge-system:
@@ -75,6 +73,7 @@ jobs:
       - name: extract cache
         run: |
           tar -xvf prefix_stage3.tar -C $(dirname $${{ env.EPREFIX }})
+          wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
           chmod +x bootstrap-prefix.sh
 
       - name: emerge system
