@@ -73,7 +73,9 @@ jobs:
 
       - name: extract cache
         run: |
-          tar -xvf prefix_stage3.tar -C $(dirname $${{ env.EPREFIX }})
+          cd /tmp
+          tar -xvf prefix_stage3.tar
+          cd -
           mv ${{ env.EPREFIX }}/bootstrap-prefix.sh .
 
       - name: emerge system
