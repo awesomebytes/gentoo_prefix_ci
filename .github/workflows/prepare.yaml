@@ -30,6 +30,7 @@ jobs:
         run: |
           wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
           chmod +x bootstrap-prefix.sh
+          sed -i 2976iMAKEOPTS=-j1 bootstrap-prefix.sh
 
       - name: stage1
         run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
