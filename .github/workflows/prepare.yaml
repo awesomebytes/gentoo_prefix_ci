@@ -9,11 +9,10 @@ env:
   EPREFIX: /tmp/gentoo
   LATEST_TREE_YES: 1
   TESTING_PV: latest
-  MAKEOPTS: -j1
 
 jobs:
   bootstrap:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -30,19 +29,20 @@ jobs:
         run: |
           wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
           chmod +x bootstrap-prefix.sh
-          sed -i 2976iMAKEOPTS=-j1 bootstrap-prefix.sh
 
       - name: stage1
-        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage2
-        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: stage3
-        run: MAKEOPTS=-j1 STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+        run: STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
 
       - name: package bootstrap stage
-        run: tar -cvf prefix_stage3.tar ${{ env.EPREFIX }}
+        run: |
+          mv bootstrap-prefix.sh ${{ env.EPREFIX }}
+          tar -cvf prefix_stage3.tar ${{ env.EPREFIX }}
 
       - name: cache
         uses: actions/upload-artifact@v3
@@ -53,7 +53,7 @@ jobs:
 
   emerge-system:
     needs: bootstrap
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
@@ -69,13 +69,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: prefix_stage3
-          path: /
+          path: /tmp
 
       - name: extract cache
         run: |
           tar -xvf prefix_stage3.tar -C $(dirname $${{ env.EPREFIX }})
-          wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
-          chmod +x bootstrap-prefix.sh
+          mv ${{ env.EPREFIX }}/bootstrap-prefix.sh .
 
       - name: emerge system
         run: ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
