@@ -41,14 +41,15 @@ jobs:
 
       - name: package bootstrap stage
         run: |
-          mv bootstrap-prefix.sh ${{ env.EPREFIX }}
-          tar -cvf prefix_stage3.tar ${{ env.EPREFIX }}
+          tar -cf prefix_stage3.tar ${{ env.EPREFIX }}
 
       - name: cache
         uses: actions/upload-artifact@v3
         with:
           name: prefix_stage3
-          path: prefix_stage3.tar
+          path: |
+            prefix_stage3.tar
+            bootstrap-prefix.sh
           retention-days: 5
 
   emerge-system:
@@ -69,14 +70,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: prefix_stage3
-          path: /tmp
 
       - name: extract cache
         run: |
-          cd /tmp
-          tar -xvf prefix_stage3.tar
-          cd -
-          mv ${{ env.EPREFIX }}/bootstrap-prefix.sh .
+          chmod +x bootstrap-prefix.sh
+          tar -xf prefix_stage3.tar -C /
 
       - name: emerge system
         run: ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
