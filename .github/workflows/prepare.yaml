@@ -94,4 +94,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ${{ env.EPREFIX }}
+          tags: mschubert/gentoo-prefix-ci:latest
           push: true
