@@ -1,0 +1,145 @@
+name: Docker
+
+on: 
+  schedule:
+    - cron: '00 13 * * 0,1,2,3,4,5,6'
+  push: 
+    branches: ["master","10-copy-ci-setup-from-httpsgithubcomawesomebytesgentoo_prefix_ci"]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ "master" ]
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+
+jobs:
+  bootstrap_stage:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        include:
+          - dockerfile: ./bootstrap_stage/Dockerfile.prepare
+            image: gentoo_prefix_ci_prepare
+          - dockerfile: ./bootstrap_stage/Dockerfile.stage1
+            base-image: gentoo_prefix_ci_prepare:latest
+            image: gentoo_prefix_ci_stage1
+          - dockerfile: ./bootstrap_stage/Dockerfile.stage2
+            base-image: gentoo_prefix_ci_stage1:latest
+            image: gentoo_prefix_ci_stage2
+          - dockerfile: ./bootstrap_stage/Dockerfile.stage3
+            base-image: gentoo_prefix_ci_stage2:latest
+            image: gentoo_prefix_ci_stage3
+          - dockerfile: ./bootstrap_stage/Dockerfile.emergesystem
+            base-image: gentoo_prefix_ci_stage3:latest
+            image: gentoo_prefix_ci_emerge_system
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Login against a Docker registry 
+      - name: Log into ${{ env.REGISTRY }} 
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata Prepare
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image }}
+          tags: |
+            type=sha
+            type=schedule,pattern={{date 'YYYYMMDD-HHmmss'}}
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+          flavor: latest=true
+      -
+        name: Build and push Prepare
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./bootstrap_stage
+          file: ${{ matrix.dockerfile }}
+          build-args: FROM=${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.base-image }}
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: ${{ steps.meta.outputs.labels }}
+
+  package_stage:
+    needs : bootstrap_stage 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dockerfile: ./package_stage/Dockerfile
+            image: ghcr.io/gentoo_prefix_ci_gentoo_prefix_boostrapped
+            base-image: gentoo_prefix_ci_emerge_system:latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Login against a Docker registry 
+      - name: Log into ${{ env.REGISTRY }} 
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image }}
+          tags: |
+            type=sha
+            type=schedule,pattern={{date 'YYYYMMDD-HHmmss'}}
+            type=semver,pattern={{version}}
+          flavor: latest=true
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          context: ./package_stage
+          file: ${{ matrix.dockerfile }}
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: FROM=${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.base-image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create tar file
+        run: |
+          docker run --entrypoint /tmp/gentoo/executeonprefix ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image }} "tar -c --lzma -f - -C /tmp gentoo" > ~/gentoo_on_tmp.tar.lzma
+  
+      - name: Use the Upload Artifact GitHub Action
+        uses: actions/upload-artifact@v3
+        with: 
+          name: gentoo_on_tmp.tar.lzma
+          path: ~/gentoo_on_tmp.tar.lzma`
