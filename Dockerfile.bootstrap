@@ -1,5 +1,5 @@
 # Just Ubuntu 16.04 with a user called user and some basic tools
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
@@ -34,6 +34,15 @@ USER user
 RUN cat /proc/cpuinfo
 RUN cat /proc/meminfo
 RUN df -h
+
+
+RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+RUN chmod +x bootstrap-prefix.sh
+ENV EPREFIX /tmp/gentoo
+
+
+# Bootstrap Gentoo Prefix
+RUN STOP_BOOTSTRAP_AFTER=stage3 LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
 
 
 ENTRYPOINT ["/bin/bash"]

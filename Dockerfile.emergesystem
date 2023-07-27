@@ -1,0 +1,14 @@
+# Prepared Ubuntu 16.04 with stage3 bootstrapped
+ARG FROM
+FROM $FROM
+
+WORKDIR /home/user
+USER user
+
+# Let's get some specs of the machine that is running this job
+RUN cat /proc/cpuinfo && cat /proc/meminfo && df -h
+
+# Bootstrap Gentoo Prefix
+RUN LATEST_TREE_YES=1 TESTING_PV=latest ./bootstrap-prefix.sh ${EPREFIX} noninteractive
+
+ENTRYPOINT ["/bin/bash"]

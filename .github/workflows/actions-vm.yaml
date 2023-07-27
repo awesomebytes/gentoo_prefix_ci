@@ -1,0 +1,75 @@
+on:
+  push
+
+name: Gentoo Prefix CI (Actions VM)
+
+env:
+  EPREFIX: /tmp/gentoo
+  LATEST_TREE_YES: 1
+  TESTING_PV: latest
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: sysinfo
+        run: |
+          id
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+          df -h
+
+      - name: download bootstrap script
+        run: |
+          wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+          chmod +x bootstrap-prefix.sh
+
+      - name: stage1
+        run: STOP_BOOTSTRAP_AFTER=stage1 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+
+      - name: stage2
+        run: STOP_BOOTSTRAP_AFTER=stage2 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+
+      - name: stage3
+        run: STOP_BOOTSTRAP_AFTER=stage3 ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
+
+      - name: package bootstrap stage
+        run: |
+          tar -cf prefix_stage3.tar ${{ env.EPREFIX }}
+
+      - name: cache
+        uses: actions/upload-artifact@v3
+        with:
+          name: prefix_stage3
+          path: |
+            prefix_stage3.tar
+            bootstrap-prefix.sh
+          retention-days: 5
+
+  emerge-system:
+    needs: bootstrap
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: download cache
+        uses: actions/download-artifact@v3
+        with:
+          name: prefix_stage3
+
+      - name: extract cache
+        run: |
+          chmod +x bootstrap-prefix.sh
+          tar -xf prefix_stage3.tar -C /
+
+      - name: emerge system
+        run: ./bootstrap-prefix.sh ${{ env.EPREFIX }} noninteractive
