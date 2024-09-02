@@ -5,6 +5,12 @@ FROM awesomebytes/gentoo_prefix_ci_prepare
 RUN cat /proc/cpuinfo && cat /proc/meminfo && df -h
 
 RUN wget https://gitweb.gentoo.org/repo/proj/prefix.git/plain/scripts/bootstrap-prefix.sh
+# To solve:
+# stage2: emerge sys-devel/gcc !!! BINPKG_COMPRESS unsupported zstd. Missing package: app-arch/zstd
+# Which ends up bringing:
+# !!! Couldn't download 'gcc-13-20230826.tar.xz'. Aborting.
+RUN sed -i '2009i\\t\tapp-arch\/zstd # needed for gcc > 13.2.1' bootstrap-prefix.sh
+RUN sed -i '2308i\\t\t\tapp-arch\/zstd # needed for gcc > 13.2.1' bootstrap-prefix.sh
 RUN chmod +x bootstrap-prefix.sh
 ENV EPREFIX /tmp/gentoo
 
