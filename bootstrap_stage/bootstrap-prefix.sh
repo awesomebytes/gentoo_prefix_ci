@@ -1998,7 +1998,7 @@ bootstrap_stage2() {
 		sys-libs/ncurses
 		sys-libs/readline
 		app-shells/bash
-		app-arch/xz-utils
+		app-arch/xz-utils-5.4.7-r1
 		sys-apps/sed
 		sys-apps/baselayout
 		sys-devel/m4
