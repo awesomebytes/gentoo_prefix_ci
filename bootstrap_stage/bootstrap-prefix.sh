@@ -1993,6 +1993,7 @@ bootstrap_stage2() {
 
 	# Build a basic compiler and portage dependencies in $ROOT/tmp.
 	pkgs=(
+		app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
 		sys-devel/gnuconfig
 		app-portage/elt-patches
 		sys-libs/ncurses
@@ -2007,7 +2008,6 @@ bootstrap_stage2() {
 		sys-devel/bison
 		sys-devel/patch
 		sys-devel/binutils-config
-		app-arch/zstd # needed for gcc > 13.2.1
 	)
 
 	# provide active SDK link on Darwin
@@ -2301,12 +2301,13 @@ bootstrap_stage3() {
 		fi
 
 		pkgs=(
+			app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
 			sys-devel/gnuconfig
 			sys-apps/baselayout
 			app-portage/elt-patches
 			sys-kernel/linux-headers
 			sys-libs/glibc
-			app-arch/zstd # needed for gcc > 13.2.1
+
 		)
 
 		BOOTSTRAP_RAP=yes \
