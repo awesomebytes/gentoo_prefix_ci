@@ -1,6 +1,7 @@
 # Just Ubuntu 16.04 with a user called user and some basic tools
 FROM ubuntu:20.04
 
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 # Add sudo
 RUN apt-get install apt-utils sudo -y
