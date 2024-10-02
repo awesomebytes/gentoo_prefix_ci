@@ -1994,6 +1994,10 @@ bootstrap_stage2() {
 		EOF
 	fi
 
+	# Unmask =app-arch/xz-utils-9999
+	mkdir -p "${ROOT}"/tmp/etc/portage
+	echo "=app-arch/xz-utils-9999" >> "${ROOT}"/tmp/etc/portage/package.unmask
+
 	# Build a basic compiler and portage dependencies in $ROOT/tmp.
 	pkgs=(
 		sys-devel/gnuconfig
