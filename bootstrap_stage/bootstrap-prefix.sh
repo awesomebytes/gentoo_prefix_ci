@@ -1918,7 +1918,12 @@ bootstrap_stage2() {
 	# bison's configure checks for perl, but doesn't use it,
 	# except for tests.  Since we don't want to pull in perl at this
 	# stage, fake it
-	PERL="$(which touch)" ; export PERL
+	# PERL="$(which touch)" ; export PERL
+	# Just use the host perl for now
+
+	ln -s /usr/bin/perl "${ROOT}"/tmp/usr/bin/perl
+	PERL="${ROOT}"/tmp/usr/bin/perl ; export PERL
+
 	# GCC sometimes decides that it needs to run makeinfo to update some
 	# info pages from .texi files.  Obviously we don't care at this
 	# stage and rather have it continue instead of abort the build
@@ -1991,18 +1996,24 @@ bootstrap_stage2() {
 		EOF
 	fi
 
+	echo "BOOTSTRAPPING STAGE 2 WITH ZSTD FIRST"
+
 	# Build a basic compiler and portage dependencies in $ROOT/tmp.
 	pkgs=(
-		app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
+		# dev-build/meson # needed for app-arch/zstd, but needs python, and we dont have it yet
+		# app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
 		sys-devel/gnuconfig
 		app-portage/elt-patches
 		sys-libs/ncurses
 		sys-libs/readline
 		app-shells/bash
-		app-arch/xz-utils-5.4.7-r1
+		=app-arch/xz-utils-5.4.7-r1
+		dev-build/autoconf # for sed, error: failed running aclocal
+		sys-devel/m4 # for automake: sh: 1: autom4te: not found
+		dev-build/automake # for sed, error: failed running aclocal # cant emerge cause it needs perl
+		dev-build/libtool # for sed, error: failed running aclocal
 		sys-apps/sed
 		sys-apps/baselayout
-		sys-devel/m4
 		sys-devel/flex
 		sys-apps/diffutils # needed by bison-3 build system
 		sys-devel/bison
