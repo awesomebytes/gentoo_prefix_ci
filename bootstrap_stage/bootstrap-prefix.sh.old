@@ -72,7 +72,7 @@ efetch() {
 			# Try to find a download manager, we only deal with wget,
 			# curl, FreeBSD's fetch and ftp.
 			if [[ $(type -t wget) == "file" ]] ; then
-				FETCH_COMMAND="wget -t 3 -T 3"  # 3x3s wait
+				FETCH_COMMAND="wget"
 				[[ $(wget -h) == *"--no-check-certificate"* ]] \
 					&& FETCH_COMMAND+=" --no-check-certificate"
 			elif [[ $(type -t curl) == "file" ]] ; then
@@ -162,7 +162,8 @@ configure_cflags() {
 
 configure_toolchain() {
 	linker="sys-devel/binutils"
-	local gcc_deps="dev-libs/gmp dev-libs/mpfr dev-libs/mpc dev-libs/libffi"
+	# Note: gcc >= 13.2.1 needs app-arch/zstd
+	local gcc_deps="dev-libs/gmp dev-libs/mpfr dev-libs/mpc dev-libs/libffi app-arch/zstd"
 	compiler="${gcc_deps} sys-devel/gcc-config sys-devel/gcc"
 	compiler_stage1="${gcc_deps} sys-devel/gcc-config"
 	compiler_type="gcc"
@@ -531,7 +532,7 @@ bootstrap_tree() {
 	#                      retain this comment and the line below to
 	#                      keep this snapshot around in the snapshots
 	# MKSNAPSHOT-ANCHOR -- directory of rsync slaves
-	local PV="20240930"
+	local PV="20240729"
 
 	# RAP uses the latest gentoo main repo snapshot to bootstrap.
 	is-rap && LATEST_TREE_YES=1
@@ -1257,7 +1258,6 @@ bootstrap_zlib() {
 
 bootstrap_libffi() {
 	# 3.0.8: last version to bootstrap on Darwin 9 x86
-	bootstrap_gnu libffi 3.4.5 || \
 	bootstrap_gnu libffi 3.3 || \
 	bootstrap_gnu libffi 3.2.1 || \
 	bootstrap_gnu libffi 3.0.8
@@ -1308,7 +1308,7 @@ bootstrap_gcc5() {
 }
 
 bootstrap_sed() {
-	bootstrap_gnu sed 4.9 || bootstrap_gnu sed 4.5 || \
+	bootstrap_gnu sed 4.5 || \
 	bootstrap_gnu sed 4.2.2 || bootstrap_gnu sed 4.2.1
 }
 
@@ -1337,7 +1337,6 @@ bootstrap_coreutils() {
 	# 8.16 is the last version released as tar.gz
 	# 8.18 is necessary for macOS High Sierra (darwin17) and converted
 	#      to tar.gz for this case
-	bootstrap_gnu coreutils 9.5 || \
 	bootstrap_gnu coreutils 8.32 || bootstrap_gnu coreutils 8.30 || \
 	bootstrap_gnu coreutils 8.16 || bootstrap_gnu coreutils 8.17
 }
@@ -1484,13 +1483,11 @@ bootstrap_stage1() {
 			SDKPATH=/
 		else
 			SDKPATH=$(xcrun --show-sdk-path --sdk macosx)
-			if [[ -e ${SDKPATH} ]] ; then
+			if [[ -L ${SDKPATH} ]] ; then
 				local fsdk
 				local osvers
-				# try and find a matching OS SDK, xcrun seems to return
-				# the latest installed, so not necessarily the one
-				# matching the macOS version
-				[[ -L ${SDKPATH} ]] && fsdk="$(readlink "${SDKPATH}")"
+				# try and find a matching OS SDK
+				fsdk="$(readlink "${SDKPATH}")"
 				# note readlink -f is not supported on older versions of
 				# macOS so need to emulate it
 				if [[ ${fsdk} != /* ]] ; then
@@ -1826,7 +1823,7 @@ do_emerge_pkgs() {
 			"-qtegrity"           # portage-utils
 			"-readline"           # bash
 			"-sanitize"
-			"system-bootstrap"
+			"bootstrap"
 			"clang"
 			"internal-glib"
 		)
@@ -1921,7 +1918,12 @@ bootstrap_stage2() {
 	# bison's configure checks for perl, but doesn't use it,
 	# except for tests.  Since we don't want to pull in perl at this
 	# stage, fake it
-	PERL="$(which touch)" ; export PERL
+	# PERL="$(which touch)" ; export PERL
+	# Just use the host perl for now
+
+	ln -s /usr/bin/perl "${ROOT}"/tmp/usr/bin/perl
+	PERL="${ROOT}"/tmp/usr/bin/perl ; export PERL
+
 	# GCC sometimes decides that it needs to run makeinfo to update some
 	# info pages from .texi files.  Obviously we don't care at this
 	# stage and rather have it continue instead of abort the build
@@ -1994,17 +1996,24 @@ bootstrap_stage2() {
 		EOF
 	fi
 
+	echo "BOOTSTRAPPING STAGE 2 WITH ZSTD FIRST"
+
 	# Build a basic compiler and portage dependencies in $ROOT/tmp.
 	pkgs=(
+		# dev-build/meson # needed for app-arch/zstd, but needs python, and we dont have it yet
+		# app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
 		sys-devel/gnuconfig
 		app-portage/elt-patches
 		sys-libs/ncurses
 		sys-libs/readline
 		app-shells/bash
 		=app-arch/xz-utils-5.6.3
+		dev-build/autoconf # for sed, error: failed running aclocal
+		sys-devel/m4 # for automake: sh: 1: autom4te: not found
+		dev-build/automake # for sed, error: failed running aclocal # cant emerge cause it needs perl
+		dev-build/libtool # for sed, error: failed running aclocal
 		sys-apps/sed
 		sys-apps/baselayout
-		sys-devel/m4
 		sys-devel/flex
 		sys-apps/diffutils # needed by bison-3 build system
 		sys-devel/bison
@@ -2042,20 +2051,27 @@ bootstrap_stage2() {
 		emerge_pkgs --nodeps "${pkg}" || return 1
 	done
 
-	# GCC doesn't respect CPPFLAGS because of its own meddling as well
-	# as toolchain.eclass, so provide a wrapper here to force just
-	# installed packages to be found
-	mkdir -p "${ROOT}"/tmp/usr/local/bin
-	rm -f "${ROOT}"/tmp/usr/local/bin/my{gcc,g++}
-	cat > "${ROOT}/tmp/usr/local/bin/mygcc" <<-EOS
-		#!/usr/bin/env sh
-		exec ${CC} "\$@" ${CPPFLAGS}
-	EOS
-	cat > "${ROOT}/tmp/usr/local/bin/myg++" <<-EOS
-		#!/usr/bin/env sh
-		exec ${CXX} "\$@" ${CPPFLAGS}
-	EOS
-	chmod 755 "${ROOT}/tmp/usr/local/bin/my"{gcc,g++}
+	# During Gentoo prefix bootstrap stage2, GCC is built with
+	# "--disable-bootstrap". For Darwin, it means that rather than letting
+	# GCC to eventually build itself using multiple passes, we're forcing
+	# it to build with the host LLVM/clang toolchain in a single pass.
+	# It's not officially supported, but practically it worked. However,
+	# since >=gcc-12.2.0, in order to support the new embedded rpath
+	# feature on Darwin, two incompatible options, "-nodefaultrpaths" and
+	# "-nodefaultexport" are introduced. This causes linking failures,
+	# since these options are only recognized by GCC and are unknown to
+	# LLVM/clang (hypothetically, using an older GCC possibly causes the
+	# same problem as well).
+	#
+	# Thus, embedded rpath should be disabled during prefix bootstrap stage2
+	# and passed into EXTRA_ECONF.
+	# https://bugs.gentoo.org/895334
+	if [[ ${CHOST} == *-darwin* ]] ;
+	then
+		local disable_darwin_rpath="--disable-darwin-at-rpath"
+	else
+		local disable_darwin_rpath=""
+	fi
 
 	for pkg in ${compiler_stage1} ; do
 		# <glibc-2.5 does not understand .gnu.hash, use
@@ -2063,12 +2079,13 @@ bootstrap_stage2() {
 		# GCC apparently drops CPPFLAGS at some point, which makes it
 		# not find things like gmp which we just installed, so force it
 		# to find our prefix
-		EXTRA_ECONF="$(rapx --with-linker-hash-style=both) --with-local-prefix=${ROOT}" \
+		# For >=gcc-12.2.0, rpath needs to be disabled in stage2 on
+		# Darwin, see above.
+		EXTRA_ECONF="--disable-bootstrap $(rapx --with-linker-hash-style=both) --with-local-prefix=${ROOT} ${disable_darwin_rpath}" \
 		MYCMAKEARGS="-DCMAKE_USE_SYSTEM_LIBRARY_LIBUV=OFF" \
 		GCC_MAKE_TARGET=all \
-		OVERRIDE_CFLAGS="${CPPFLAGS} ${OVERRIDE_CFLAGS}" \
 		OVERRIDE_CXXFLAGS="${CPPFLAGS} ${OVERRIDE_CXXFLAGS}" \
-		CC=mygcc CXX=myg++ \
+		TPREFIX="${ROOT}" \
 		PYTHON_COMPAT_OVERRIDE=python$(python_ver) \
 		emerge_pkgs --nodeps "${pkg}" || return 1
 
@@ -2149,7 +2166,7 @@ bootstrap_stage3() {
 	# At this point, we should have a proper GCC, and don't need to
 	# rely on the system wrappers.  Let's get rid of them, so that
 	# they stop mucking up builds.
-	rm -f "${ROOT}"/tmp/usr/local/bin/{,my,${CHOST}-}{gcc,g++}
+	rm -f "${ROOT}"/tmp/usr/local/bin/*
 
 	configure_toolchain || return 1
 
@@ -2295,11 +2312,13 @@ bootstrap_stage3() {
 		fi
 
 		pkgs=(
+			app-arch/zstd # needed for sys-devel/gnuconfig-20240728::gentoo & gcc > 13.2.1
 			sys-devel/gnuconfig
 			sys-apps/baselayout
 			app-portage/elt-patches
 			sys-kernel/linux-headers
 			sys-libs/glibc
+
 		)
 
 		BOOTSTRAP_RAP=yes \
@@ -2349,7 +2368,7 @@ bootstrap_stage3() {
 		pkgs=(
 			sys-devel/gnuconfig
 			app-portage/elt-patches
-			=app-arch/xz-utils-5.6.3
+			app-arch/xz-utils
 			sys-apps/sed
 			sys-apps/baselayout
 			sys-devel/m4
@@ -2481,6 +2500,47 @@ bootstrap_stage3() {
 	# now try and get things in the way they should be according to the
 	# default USE-flags
 	unset USE
+
+	# do some sanity USE-flag enabling based on CPU, use cpuid2cpuflags
+	# if keyworded for this arg, else see if there's fallbacks to be
+	# made
+	mkdir -p "${ROOT}/etc/portage/package.use"
+	if emerge --color n --oneshot -v cpuid2cpuflags ; then
+		hash -r
+		echo "*/* $(cpuid2cpuflags)" \
+			> "${ROOT}/etc/portage/package.use/00cpu-flags"
+	else
+		case "${CHOST}" in
+			arm64-*darwin*)
+				# https://github.com/RustCrypto/utils/issues/378
+				local flags=( "aes" "sha1" "sha2" )
+				local line
+				sysctl hw.optional | while read -r line ; do
+					line=${line#hw.optional.}
+					[[ ${line%%*: } == "1" ]] || continue
+					line=${line%: *}
+					case "${line}" in
+						"neon")
+							flags+=( "${line}" )
+							;;
+						"armv8_"*)
+							line=${line#armv8_}
+							case "${line}" in
+								"crc32")
+									flags+=( "${line}" )
+									;;
+								"2_sha"*)
+									flags+=( "${line#2_}" )
+									;;
+							esac
+							;;
+					esac
+				done
+				echo "*/* CPU_FLAGS_ARM: ${flags}" \
+					> "${ROOT}/etc/portage/package.use/00cpu-flags"
+				;;
+		esac
+	fi
 
 	# re-emerge anything hopefully not running into circular deps
 	eflags=( "--deep" "--changed-use" "@world" )
