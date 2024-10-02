@@ -2001,7 +2001,7 @@ bootstrap_stage2() {
 		sys-libs/ncurses
 		sys-libs/readline
 		app-shells/bash
-		=app-arch/xz-utils-5.6.3
+		=app-arch/xz-utils-9999
 		sys-apps/sed
 		sys-apps/baselayout
 		sys-devel/m4
@@ -2349,7 +2349,7 @@ bootstrap_stage3() {
 		pkgs=(
 			sys-devel/gnuconfig
 			app-portage/elt-patches
-			=app-arch/xz-utils-5.6.3
+			=app-arch/xz-utils-9999
 			sys-apps/sed
 			sys-apps/baselayout
 			sys-devel/m4
