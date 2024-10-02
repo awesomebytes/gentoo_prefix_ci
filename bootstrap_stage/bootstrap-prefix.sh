@@ -2007,7 +2007,7 @@ bootstrap_stage2() {
 		sys-libs/ncurses
 		sys-libs/readline
 		app-shells/bash
-		=app-arch/xz-utils-5.4.7-r1
+		=app-arch/xz-utils-5.6.3
 		dev-build/autoconf # for sed, error: failed running aclocal
 		sys-devel/m4 # for automake: sh: 1: autom4te: not found
 		dev-build/automake # for sed, error: failed running aclocal # cant emerge cause it needs perl
